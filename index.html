@@ -360,6 +360,43 @@ body.exo-on{background:#2E2F8D}
 .eq-pause.lo{background:#E83828}
 .exo-go.stop{background:#fff;color:#E83828;box-shadow:inset 0 0 0 4px #E83828}
 
+/* défibrillation : un seul écran (téléphone, tablette, ordinateur) */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.df-page{padding-top:10px}
+.df-page .df{height:calc(100vh - var(--barh,66px) - 34px);height:calc(100dvh - var(--barh,66px) - 34px);min-height:230px;grid-template-columns:minmax(0,1fr) clamp(170px,22vw,250px);grid-template-rows:minmax(0,1fr)}
+.df-page .df-screen{display:flex;flex-direction:column;min-height:0;border-width:8px}
+.df-cv{position:relative;flex:1 1 0;min-height:110px}
+.df-cv canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.df-cv .df-p{top:72%;left:2px}
+.df-title{color:#cfe4f6;opacity:.7;font-size:.78rem;letter-spacing:.12em}
+.df-page .df-msg{font-size:clamp(.8rem,1.6vw + .3rem,1rem);min-height:2.4em}
+.df-page .df-keys{min-height:0;overflow:hidden;gap:8px;padding:10px}
+.df-page .df-keys .dk{flex:1 1 0;min-height:44px}
+.df-page .df-keys .dk.shock{flex:1.8 1 0;min-height:80px}
+.df-page .df-keys .dk.shock svg{width:clamp(44px,8vh,76px)}
+.df-opts{display:flex;flex-direction:column;gap:6px}
+.dk .lbl .sh{display:none}
+.df-more{text-align:center;margin-top:-6px}
+@media (max-height:520px){.df-page .df-head .df-hr b{font-size:1.8rem}.df-title{display:none}.df-page .df-keys .dk .ico{width:30px}.df-page .df-keys .dk .ico svg{width:28px}.df-opts{flex-direction:row}.df-opts .btn{flex:1}}
+/* portrait : scope en haut, touches en dessous */
+@media (orientation:portrait),(max-width:700px){
+  .df-page .df{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  .df-page .df-keys{display:grid;grid-template-columns:repeat(3,1fr);grid-template-areas:"sin asy fv" "choc choc cpr" "opts opts opts";flex:none}
+  .df-page .df-keys .dk{flex-direction:column;justify-content:center;text-align:center;gap:2px;font-size:.85rem;min-height:58px;padding:6px}
+  .df-page .df-keys .k-sin{grid-area:sin}.df-page .df-keys .k-asy{grid-area:asy}.df-page .df-keys .k-fv{grid-area:fv}
+  .df-page .df-keys .dk.shock{grid-area:choc;min-height:84px;flex-direction:row;gap:12px;font-size:1.1rem}
+  .df-page .df-keys .dk.cpr{grid-area:cpr;min-height:84px}
+  .df-opts{grid-area:opts;flex-direction:row}.df-opts .btn{flex:1}
+  .dk .lbl .lg{display:none}.dk .lbl .sh{display:inline}
+}
+@media (orientation:portrait) and (min-width:700px){.dk .lbl .lg{display:inline}.dk .lbl .sh{display:none}.df-page .df-keys .dk{font-size:1rem;min-height:72px}.df-page .df-keys .dk.shock,.df-page .df-keys .dk.cpr{min-height:110px}}
+@media (max-height:520px){.bar-in{min-height:44px;padding-block:4px}.bar .wm{font-size:1.1rem}.bar .back{min-height:34px;padding:4px 10px}.df-page .df-keys{gap:5px;padding:6px}.df-page .df-keys .dk{min-height:34px;padding:4px 8px;font-size:.82rem}.df-page .df-keys .dk.shock{min-height:56px}.df-page .df-keys .btn.small{min-height:30px;padding:2px 6px;font-size:.75rem}.df-page .df-screen{border-width:5px;padding:6px 8px}.df-page .df-msg{margin-top:4px;padding:4px 8px}}
+.wrap.df-page{max-width:1600px}
+.df-page .df-head{flex-wrap:nowrap;align-items:center;min-width:0}
+.df-page .df-head .df-lab{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+@media (max-width:600px){.df-title{display:none}.df-page .df-hr b{font-size:2rem}}
+@media (max-height:520px){.df-opts .btn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+
 /* ajustements charte sur les outils */
 .dk[aria-pressed="true"]{background:var(--vert);color:#0d2a10}
 .dk.cpr[aria-pressed="true"]{background:var(--bleu);color:#10112a}
@@ -649,26 +686,26 @@ function dfClick(a, b){
 }
 const SHOCK_ICON = `<svg viewBox="0 0 100 90" aria-hidden="true"><path d="M50 4 L96 86 H4 Z" fill="#ff8a00" stroke="#7a3d00" stroke-width="4" stroke-linejoin="round"/><path d="M56 26 L38 56 H50 L44 78 L64 46 H52 Z" fill="#fff" stroke="#1d1d1d" stroke-width="2.5" stroke-linejoin="round"/></svg>`;
 function renderDefib(){
-  setTimeout(() => { dfStart(); dfSync(); dfSetMsg(DF.msg, DF.msgKind); }, 0);
-  return `<div class="wrap wide">
-    <header class="top"><div class="grow"><div class="eyebrow">Moniteur pédagogique</div><h1>Défibrillation</h1></div></header>
+  setTimeout(() => { dfFit(); dfStart(); dfSync(); dfSetMsg(DF.msg, DF.msgKind); }, 0);
+  return `<div class="wrap wide df-page">
+    <h1 class="sr">Défibrillation</h1>
     <div class="df">
       <div class="df-screen">
-        <div class="df-head"><span>II</span><span class="df-lab" id="df-lab">SINUSAL</span><span class="df-n mono" id="df-shocks"></span><span class="df-hr"><small>FC</small> <b id="df-hr">75</b></span></div>
-        <canvas id="ecg" aria-label="Tracé ECG en direct"></canvas>
-        <div class="df-p">Circulation</div>
+        <div class="df-head"><span class="df-title">DÉFIBRILLATION</span><span>II</span><span class="df-lab" id="df-lab">SINUSAL</span><span class="df-n mono" id="df-shocks"></span><span class="df-hr"><small>FC</small> <b id="df-hr">75</b></span></div>
+        <div class="df-cv"><canvas id="ecg" aria-label="Tracé ECG en direct"></canvas><div class="df-p">Circulation</div></div>
         <div class="df-msg idle" id="df-msg" aria-live="polite">Défibrillateur prêt.</div>
       </div>
       <div class="df-keys">
-        <button class="dk" data-act="df-rhythm" data-v="sinus" aria-pressed="true"><span class="ico">${'<svg viewBox="0 0 40 20"><path d="M2 12 H11 L14 8 L17 12 H19 L21 2 L24 18 L26 12 H38" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>'}</span><span class="lbl">Rythme normal</span></button>
-        <button class="dk" data-act="df-rhythm" data-v="asys" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 20"><path d="M2 11 H38" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="lbl">Asystolie</span></button>
-        <button class="dk" data-act="df-rhythm" data-v="fv" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 20"><path d="M2 10 L5 4 L8 15 L11 6 L13 13 L16 3 L19 16 L22 7 L24 12 L27 4 L30 15 L33 8 L36 12 L38 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg></span><span class="lbl">Fibrillation ventriculaire</span></button>
+        <button class="dk k-sin" data-act="df-rhythm" data-v="sinus" aria-pressed="true"><span class="ico">${'<svg viewBox="0 0 40 20"><path d="M2 12 H11 L14 8 L17 12 H19 L21 2 L24 18 L26 12 H38" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>'}</span><span class="lbl">Rythme normal</span></button>
+        <button class="dk k-asy" data-act="df-rhythm" data-v="asys" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 20"><path d="M2 11 H38" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="lbl">Asystolie</span></button>
+        <button class="dk k-fv" data-act="df-rhythm" data-v="fv" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 20"><path d="M2 10 L5 4 L8 15 L11 6 L13 13 L16 3 L19 16 L22 7 L24 12 L27 4 L30 15 L33 8 L36 12 L38 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg></span><span class="lbl"><span class="lg">Fibrillation ventriculaire</span><span class="sh">Fibrillation</span></span></button>
         <button class="dk shock" data-act="df-shock" aria-label="Délivrer le choc">${SHOCK_ICON}<span class="lbl">Choc</span></button>
-        <button class="dk cpr" data-act="df-cpr" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 24"><path d="M14 3 h12 v6 h-12 z M20 9 v5 M8 18 h24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 14 l5 4 l5 -4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl">Massage cardiaque</span></button>
-        <button class="btn ghost small" data-act="df-sound" aria-pressed="false">Son coupé</button>
-        <button class="btn ghost small" data-act="df-refr" aria-pressed="false" title="Les chocs échouent, pour travailler la FV réfractaire">FV réfractaire : non</button>
+        <button class="dk cpr" data-act="df-cpr" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 24"><path d="M14 3 h12 v6 h-12 z M20 9 v5 M8 18 h24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 14 l5 4 l5 -4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl"><span class="lg">Massage cardiaque</span><span class="sh">Massage</span></span></button>
+        <div class="df-opts"><button class="btn ghost small" data-act="df-sound" aria-pressed="false">Son coupé</button>
+        <button class="btn ghost small" data-act="df-refr" aria-pressed="false" title="Les chocs échouent, pour travailler la FV réfractaire">FV réfractaire : non</button></div>
       </div>
     </div>
+    <div class="df-more small muted">Explications et repères du référentiel plus bas ↓</div>
     <div class="panel" id="df-explain"></div>
     <section class="panel">
       <h2>Les repères du référentiel</h2>
@@ -685,6 +722,12 @@ function renderDefib(){
   </div>`;
 }
 
+
+/* L'écran du scope et les touches tiennent sur un seul écran, quel que soit l'appareil */
+function dfFit(){
+  const b = document.querySelector(".bar"); if (b) document.documentElement.style.setProperty("--barh", b.offsetHeight + "px");
+}
+window.addEventListener("resize", () => { if (document.querySelector(".df-page")) dfFit(); });
 
 /* ====== Outil : chronomètre de l'arrêt cardiaque ====== */
 const CH = { running: false, t: 0, last: 0, speed: 1, cpr: false, chance: 100, path: [[0, 100]], events: [], shock: null, raf: null };
