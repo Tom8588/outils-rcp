@@ -209,6 +209,18 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .ch-cprbtn[aria-pressed="true"]{background:#2563eb;border-color:#2563eb;color:#fff}
 .ch-shockbtn:not(:disabled){border-color:#ff8a00;color:#b45309;font-weight:700}
 .ch-log{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:2px;font-size:.9rem}
+.rc-meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 20px}
+.rc-dticks span:nth-child(2){left:50%}.rc-dticks span:nth-child(3){left:66.7%}
+.rc-duty{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
+.rc-split{display:flex;width:min(100%,520px);border-radius:8px;overflow:hidden;font-size:.82rem;font-weight:700}
+.rc-split i{font-style:normal;padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-split i:first-child{background:var(--marine);color:#fff}.rc-split i:last-child{background:var(--bleu);color:#10112a}
+.rc-bilan{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.rc-bilan div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:2px}
+.rc-bilan b{font-size:1.4rem;font-weight:900}
+.rc-bilan span{font-size:.8rem;color:var(--muted)}
+.linklike{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;font-weight:700}
+.rc-rate.juste,.rc-verdict.juste{color:var(--wait)}
 
 /* ajustements charte sur les outils */
 .dk[aria-pressed="true"]{background:var(--vert);color:#0d2a10}
@@ -632,9 +644,10 @@ const RC = {
   running: false, phase: "idle", count: 0, cycle: 0, insuf: 0, startT: 0, elapsed: 0, lastRelay: 0,
   timer: null, insufTimer: null, ac: null, wake: null,
   // mesure
-  measuring: false, grav: null, filt: 0, armed: false, peakAmp: 3, times: [], lastDet: 0, total: 0, rate: null, permission: null,
+  measuring: false, buf: [], depth: null, duty: null, K: 1, calib: null, stats: null, grav: null, filt: 0, armed: false, peakAmp: 3, times: [], lastDet: 0, total: 0, rate: null, permission: null,
 };
 const RC_MODES = { adulte: { n: 30, label: "Adulte · 30 / 2" }, enfant: { n: 15, label: "Enfant, nourrisson · 15 / 2" }, continu: { n: 0, label: "Compressions seules" }, ventil: { n: 0, label: "Insufflations seules" } };
+try { const k = Number(localStorage.getItem("rcp-depthK")); if (k > 0.2 && k < 5) RC.K = k; } catch (e) {}
 const RC_VENT = { adulte: [10, "Adulte, enfant · 10 / min"], nourrisson: [20, "Nourrisson · 20 / min"], nn: [30, "Nouveau-né · 30 / min"] };
 function rcAudio(){ try { if (!RC.ac) RC.ac = new (window.AudioContext || window.webkitAudioContext)(); if (RC.ac.resume) RC.ac.resume(); return RC.ac; } catch (e) { return null; } }
 function rcTone(f, d, v, type){ if (!RC.sound) return; const ac = rcAudio(); if (!ac) return; const o = ac.createOscillator(), g = ac.createGain(); o.type = type || "sine"; o.frequency.value = f; const n = ac.currentTime; g.gain.setValueAtTime(v || 0.2, n); g.gain.exponentialRampToValueAtTime(0.0001, n + d); o.connect(g); g.connect(ac.destination); o.start(n); o.stop(n + d + 0.02); }
@@ -694,7 +707,7 @@ function rcClock(){
   RC.elapsed = rcNow() - RC.startT;
   if (RC.relay && RC.mode !== "ventil" && RC.elapsed - RC.lastRelay >= 120) { RC.lastRelay += 120; rcTone(880, .15, .25); setTimeout(() => rcTone(880, .15, .25), 220); setTimeout(() => rcTone(1180, .3, .25), 440); rcFlash("Relais ! Changez de sauveteur aux compressions, sans perdre de temps."); }
   const t = document.getElementById("rc-time"); if (t) t.textContent = rcFmt(RC.elapsed);
-  if (RC.measuring && RC.lastDet && rcNow() - RC.lastDet > 2.2) { RC.rate = null; rcGauge(); }
+  if (RC.measuring && RC.lastDet && rcNow() - RC.lastDet > 2.2) { RC.rate = null; RC.depth = null; RC.duty = null; rcGauge(); rcDepthUi(); }
 }
 const rcFmt = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(Math.floor(s % 60)).padStart(2, "0");
 function rcPulse(){ const c = document.getElementById("rc-dial"); if (!c) return; c.classList.remove("beat"); void c.offsetWidth; c.classList.add("beat"); }
@@ -705,7 +718,7 @@ async function rcMeasureStart(){
   rcAudio();
   if (typeof DeviceMotionEvent === "undefined") { RC.permission = "absent"; rcUpdate(); return; }
   try { if (typeof DeviceMotionEvent.requestPermission === "function") { const r = await DeviceMotionEvent.requestPermission(); if (r !== "granted") { RC.permission = "refus"; rcUpdate(); return; } } } catch (e) { RC.permission = "refus"; rcUpdate(); return; }
-  RC.permission = "ok"; RC.measuring = true; RC.grav = null; RC.filt = 0; RC.armed = false; RC.times = []; RC.rate = null; RC.lastDet = 0; RC.gotData = false;
+  RC.permission = "ok"; RC.measuring = true; RC.buf = []; RC.gslow = null; RC.depth = null; RC.duty = null; RC.grav = null; RC.filt = 0; RC.armed = false; RC.times = []; RC.rate = null; RC.lastDet = 0; RC.gotData = false;
   window.addEventListener("devicemotion", rcMotion);
   setTimeout(() => { if (RC.measuring && !RC.gotData) { RC.permission = "absent"; rcMeasureStop(); } }, 1500);
   rcUpdate();
@@ -717,7 +730,11 @@ function rcMotion(e){
   const v = [a.x, a.y, a.z];
   if (!RC.grav) RC.grav = v.slice();
   for (let i = 0; i < 3; i++) RC.grav[i] = RC.grav[i] * 0.94 + v[i] * 0.06;               // gravité (passe-bas lent)
+  if (!RC.gslow) RC.gslow = v.slice();
+  for (let i = 0; i < 3; i++) RC.gslow[i] = RC.gslow[i] * 0.995 + v[i] * 0.005;          // direction verticale stable, pour la profondeur
   const gn = Math.hypot(...RC.grav) || 9.81, u = RC.grav.map(x => x / gn);
+  const gs = Math.hypot(...RC.gslow) || 9.81, us = RC.gslow.map(x => x / gs);
+  { const tt = rcNow(); RC.buf.push([tt, v[0] * us[0] + v[1] * us[1] + v[2] * us[2]]); while (RC.buf.length && tt - RC.buf[0][0] > 4) RC.buf.shift(); }
   const lin = v.map((x, i) => x - RC.grav[i]);
   const vert = lin[0] * u[0] + lin[1] * u[1] + lin[2] * u[2];                              // accélération verticale
   RC.filt = RC.filt * 0.55 + vert * 0.45;                                                  // lissage
@@ -734,9 +751,74 @@ function rcDetected(t){
   else RC.times = [];
   RC.lastDet = t;
   if (RC.times.length >= 2) { const s = RC.times.slice().sort((x, y) => x - y); RC.rate = Math.round(60 / s[Math.floor(s.length / 2)]); }
+  if (RC.measuring) { const r = rcDepthCalc(); if (r && r.depth > 0.5 && r.depth < 15) { RC.depth = RC.depth == null ? r.depth : RC.depth * 0.4 + r.depth * 0.6; RC.duty = r.duty; rcRecord(r); } rcDepthUi(); }
   if (RC.running && RC.source !== "metro") { if (RC.phase === "insuf" && !RC.initial) { clearTimeout(RC.insufTimer); RC.phase = "comp"; RC.count = 0; RC.cycle++; } rcCompression(); }
   else rcPulse();
   rcGauge();
+}
+/* --- profondeur : reconstruction spectrale du déplacement ---
+   Les compressions sont quasi périodiques : on décompose l'accélération verticale des dernières
+   compressions en harmoniques de la fréquence de massage, puis on divise chaque harmonique par ω².
+   On obtient la forme du déplacement, donc la profondeur (crête à crête) et la part du cycle passée
+   à comprimer. Méthode classique des aides au massage à accéléromètre ; précision de l'ordre du cm. */
+function rcDepthCalc(){
+  if (RC.times.length < 2 || RC.buf.length < 30) return null;
+  const s = RC.times.slice().sort((x, y) => x - y), T = s[Math.floor(s.length / 2)], f = 1 / T;
+  if (T < 0.35 || T > 1.2) return null;
+  const tEnd = RC.buf[RC.buf.length - 1][0], nP = Math.min(3, Math.floor((tEnd - RC.buf[0][0]) / T));
+  if (nP < 2) return null;
+  const t0 = tEnd - nP * T, fs = 100, N = Math.round(nP * T * fs), A = new Float64Array(N);
+  let j = 0;
+  for (let i = 0; i < N; i++) {                                      // rééchantillonnage régulier à 100 Hz
+    const t = t0 + i / fs; while (j < RC.buf.length - 2 && RC.buf[j + 1][0] < t) j++;
+    const [ta, va] = RC.buf[j], [tb, vb] = RC.buf[j + 1] || RC.buf[j]; A[i] = tb > ta ? va + (vb - va) * (t - ta) / (tb - ta) : va;
+  }
+  const H = []; for (let k = 1; k <= 5 && k * f < 12; k++) {
+    let a = 0, b = 0; const w = 2 * Math.PI * k * f;
+    for (let i = 0; i < N; i++) { const t = i / fs; a += A[i] * Math.cos(w * t); b += A[i] * Math.sin(w * t); }
+    H.push([w, 2 * a / N, 2 * b / N]);
+  }
+  let mx = -1e9, mn = 1e9, tMx = 0, tMn = 0;
+  for (let i = 0; i < 100; i++) {
+    const t = (nP - 1) * T + T * i / 100; let x = 0;
+    for (const [w, a, b] of H) x -= (a * Math.cos(w * t) + b * Math.sin(w * t)) / (w * w);
+    if (x > mx) { mx = x; tMx = t; } if (x < mn) { mn = x; tMn = t; }
+  }
+  const depth = (mx - mn) * 100 * RC.K;                                   // cm
+  const comp = (((tMn - tMx) % T) + T) % T;                               // du haut vers le bas
+  return { depth, duty: comp / T };
+}
+function rcDepthVerdict(d){
+  if (d == null) return ["—", "", "En attente de compressions…"];
+  if (d < 4.5) return [d.toFixed(1).replace(".", ","), "lent", "Trop superficiel : appuie plus fort, bras tendus."];
+  if (d < 5) return [d.toFixed(1).replace(".", ","), "juste", "Un peu juste : vise 5 cm."];
+  if (d <= 6) return [d.toFixed(1).replace(".", ","), "bon", "Bonne profondeur."];
+  return [d.toFixed(1).replace(".", ","), "rapide", "Trop profond : ne dépasse pas 6 cm."];
+}
+function rcRecord(r){
+  if (RC.calib) { RC.calib.push(r.depth / RC.K); if (RC.calib.length >= 10) { const c = RC.calib.slice().sort((x, y) => x - y), m = c[Math.floor(c.length / 2)]; RC.K = 5 / m; RC.calib = null; try { localStorage.setItem("rcp-depthK", String(RC.K)); } catch (e) {} toast("Étalonnage enregistré : 5 cm sur la jauge = 5 cm dans l’appli."); rcCalibUi(); } else rcCalibUi(); return; }
+  const st = RC.stats || (RC.stats = { n: 0, rate: 0, depth: 0, duty: 0, sumD: 0 });
+  st.n++; st.sumD += r.depth;
+  if (RC.rate >= 100 && RC.rate <= 120) st.rate++;
+  if (r.depth >= 5 && r.depth <= 6) st.depth++;
+  if (r.duty >= 0.4 && r.duty <= 0.6) st.duty++;
+}
+function rcCalibUi(){
+  const el = document.getElementById("rc-calib"); if (!el) return;
+  el.innerHTML = RC.calib ? `<b>Étalonnage en cours : ${RC.calib.length} / 10.</b> Comprime en visant pile 5 cm sur la jauge du mannequin.`
+    : RC.K !== 1 ? `Étalonné sur la jauge (facteur ${RC.K.toFixed(2).replace(".", ",")}). <button class="linklike" data-act="rc-calreset">Revenir au réglage d’origine</button>` : "Pas encore étalonné : la profondeur affichée est une estimation brute.";
+}
+function rcDepthUi(){
+  const el = document.getElementById("rc-depth"); if (!el) return;
+  const [v, cls, txt] = rcDepthVerdict(RC.depth);
+  el.textContent = v; el.className = "rc-rate " + cls;
+  const m = document.getElementById("rc-dverdict"); if (m) { m.textContent = txt; m.className = "rc-verdict " + cls; }
+  const nd = document.getElementById("rc-dneedle"); if (nd) { const d = RC.depth == null ? 5.5 : Math.max(2, Math.min(8, RC.depth)); nd.style.left = ((d - 2) / 6 * 100) + "%"; nd.style.opacity = RC.depth == null ? .25 : 1; }
+  const du = document.getElementById("rc-duty");
+  if (du) { if (RC.duty == null) du.innerHTML = `<span class="muted">Compression / relâchement : en attente…</span>`; else { const c = Math.round(RC.duty * 100), ok = c >= 40 && c <= 60;
+    du.innerHTML = `<div class="rc-split"><i style="flex:${c}">Compression ${c} %</i><i style="flex:${100 - c}">Relâchement ${100 - c} %</i></div><span class="rc-verdict ${ok ? "bon" : "lent"}">${ok ? "Temps de compression et de relâchement équilibrés." : c > 60 ? "Tu restes trop longtemps en bas : relâche plus vite." : "Compression trop brève : appuie franchement, puis relâche."}</span>`; } }
+  const st = document.getElementById("rc-stats"), S = RC.stats;
+  if (st) st.innerHTML = S && S.n ? `<div class="rc-bilan"><div><b class="mono">${S.n}</b><span>compressions mesurées</span></div><div><b class="mono">${(S.sumD / S.n).toFixed(1).replace(".", ",")} cm</b><span>profondeur moyenne</span></div><div><b class="mono">${Math.round(S.depth / S.n * 100)} %</b><span>entre 5 et 6 cm</span></div><div><b class="mono">${Math.round(S.rate / S.n * 100)} %</b><span>entre 100 et 120/min</span></div><div><b class="mono">${Math.round(S.duty / S.n * 100)} %</b><span>compression / relâchement équilibrés</span></div></div>` : "";
 }
 function rcTap(){ rcAudio(); rcDetected(rcNow()); }
 function rcVerdict(r){
@@ -766,12 +848,16 @@ function rcUpdate(){
   const pm = document.getElementById("rc-perm"); if (pm) { pm.hidden = !RC.permission || RC.permission === "ok"; pm.textContent = RC.permission === "refus" ? "L’accès aux capteurs de mouvement a été refusé. Autorise-le dans les réglages du navigateur, ou utilise le mode « Appuis sur l’écran »." : "Aucun capteur de mouvement détecté sur cet appareil. Utilise un téléphone, ou le mode « Appuis sur l’écran »."; }
   const tp = document.getElementById("rc-tapzone"); if (tp) tp.hidden = RC.source !== "ecran";
   dial.style.setProperty("--beat", (60 / RC.bpm).toFixed(3) + "s");
-  rcGauge();
+  rcGauge(); rcDepthUi(); rcCalibUi();
+  const cb = document.getElementById("rc-calbtn"); if (cb) { cb.disabled = !RC.measuring; cb.textContent = RC.calib ? "Annuler l’étalonnage" : "Étalonner sur la jauge"; }
 }
 function rcClick(a, b){
   if (a === "rc-go") { RC.running ? rcStop() : rcStart(); return; }
   if (a === "rc-ms") { RC.measuring ? rcMeasureStop() : rcMeasureStart(); return; }
   if (a === "rc-tap") { rcTap(); return; }
+  if (a === "rc-cal") { RC.calib = RC.calib ? null : []; rcUpdate(); return; }
+  if (a === "rc-calreset") { RC.K = 1; try { localStorage.removeItem("rcp-depthK"); } catch (e) {} rcUpdate(); return; }
+  if (a === "rc-statreset") { RC.stats = null; rcDepthUi(); return; }
   if (a === "rc-mode") { RC.mode = b.dataset.v; rcStop(); }
   else if (a === "rc-vent") { RC.vent = b.dataset.v; if (RC.running && RC.phase === "vent") { clearTimeout(RC.insufTimer); RC.insufTimer = setTimeout(rcVentilate, 60000 / RC_VENT[RC.vent][0]); } }
   else if (a === "rc-src") { RC.source = b.dataset.v; if (RC.source === "capteur" && !RC.measuring) rcMeasureStart(); if (RC.running && RC.source === "metro") rcSchedule(); else clearTimeout(RC.timer); }
@@ -806,17 +892,36 @@ function renderRcp(){
     </div>
     <section class="panel">
       <h2>Mesurer les compressions du stagiaire</h2>
-      <p class="small" style="margin:0">Pose le téléphone à plat sur le thorax du mannequin, écran vers le haut, sous les mains ou à côté du point de compression. Il compte les compressions et affiche le rythme en direct.</p>
-      <div class="rc-meter">
-        <div class="rc-rate" id="rc-rate">—</div>
-        <div class="rc-unit">compressions / min</div>
-        <div class="rc-scale"><span class="z lent"></span><span class="z bon"></span><span class="z rapide"></span><i id="rc-needle"></i></div>
-        <div class="rc-ticks"><span>70</span><span>100</span><span>120</span><span>150</span></div>
-        <div class="rc-verdict" id="rc-verdict">En attente de compressions…</div>
+      <p class="small" style="margin:0">Pose le téléphone à plat sur la plaque du thorax du mannequin, écran vers le haut, juste à côté des mains (pas dessous). Il compte les compressions, et estime leur rythme et leur profondeur en direct.</p>
+      <div class="rc-meters">
+        <div class="rc-meter">
+          <div class="rc-rate" id="rc-rate">—</div>
+          <div class="rc-unit">compressions / min</div>
+          <div class="rc-scale"><span class="z lent"></span><span class="z bon"></span><span class="z rapide"></span><i id="rc-needle"></i></div>
+          <div class="rc-ticks"><span>70</span><span>100</span><span>120</span><span>150</span></div>
+          <div class="rc-verdict" id="rc-verdict">En attente de compressions…</div>
+        </div>
+        <div class="rc-meter">
+          <div class="rc-rate" id="rc-depth">—</div>
+          <div class="rc-unit">cm de profondeur</div>
+          <div class="rc-scale"><span class="z lent" style="flex:3"></span><span class="z bon" style="flex:1"></span><span class="z rapide" style="flex:2"></span><i id="rc-dneedle"></i></div>
+          <div class="rc-ticks rc-dticks"><span>2</span><span>5</span><span>6</span><span>8</span></div>
+          <div class="rc-verdict" id="rc-dverdict">En attente de compressions…</div>
+        </div>
       </div>
-      <div class="actions"><button class="btn primary" id="rc-ms" data-act="rc-ms">Mesurer avec le téléphone</button></div>
+      <div id="rc-duty" class="rc-duty"></div>
+      <div class="actions"><button class="btn primary" id="rc-ms" data-act="rc-ms">Mesurer avec le téléphone</button><button class="btn" id="rc-calbtn" data-act="rc-cal" disabled>Étalonner sur la jauge</button><button class="btn ghost" data-act="rc-statreset">Remettre le bilan à zéro</button></div>
+      <div class="small" id="rc-calib"></div>
       <div class="warn" id="rc-perm" hidden></div>
-      <p class="small muted" style="margin:0">Le téléphone mesure le rythme, pas la profondeur : vérifie à l’œil une poussée verticale (adulte : environ 5 cm sans dépasser 6 cm) et un relâchement complet du thorax.</p>
+      <div id="rc-stats"></div>
+      <details class="small"><summary><b>Ce que le téléphone mesure, et ce qu’il ne mesure pas</b></summary>
+        <ul class="fra-list" style="margin-top:6px">
+          <li><b>Rythme</b> : fiable.</li>
+          <li><b>Profondeur</b> : estimée à partir des mouvements du téléphone, à environ 1 cm près. Étalonne une fois sur la jauge Ambu : 10 compressions en visant pile 5 cm. Le réglage est retenu sur l’appareil.</li>
+          <li><b>Compression / relâchement</b> : la part du cycle passée à comprimer. Le référentiel demande un temps de compression égal au temps de relâchement.</li>
+          <li><b>Relâchement complet</b> : un téléphone ne peut pas savoir si le stagiaire reste appuyé sur le thorax entre deux compressions. Surveille-le à la jauge et à l’œil : les mains restent au contact sans peser.</li>
+          <li>Sur un matelas ou un sol mou, tout le mannequin s’enfonce : la profondeur est alors surestimée. Travaille au sol dur.</li>
+        </ul></details>
     </section>
     <section class="panel">
       <h2>Les repères du référentiel</h2>
