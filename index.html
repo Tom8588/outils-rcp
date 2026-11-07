@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Outils RCP</title>
+<meta name="description" content="Outils pédagogiques sur l'arrêt cardiaque pour les formations sapeurs-pompiers : défibrillation, chances de survie, qualité des compressions.">
+<meta name="theme-color" content="#2E2F8D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Outils RCP">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/aileron@5/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/aileron@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/aileron@5/900.css">
+<script>
+  // Capturé tôt pour proposer l'installation dès la première ouverture
+  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); window.__installEvt = e; window.dispatchEvent(new Event("installready")); });
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+<style>
+/* Charte SDIS 88 : rouge, bleu clair, bleu foncé et vert de l'écusson ; typographie Aileron */
+:root{
+  --rouge:#E83828; --bleu:#7FB8E5; --marine:#2E2F8D; --vert:#59BB5C;
+  --bg:#f2f4fa; --surface:#ffffff; --surface-2:#f5f6fb; --ink:#17183a; --muted:#585b78; --line:#d9dcea;
+  --accent:var(--marine); --on-accent:#fff;
+  --ok:#2f8a34; --ok-bg:#e3f3e4; --ko:#c8281a; --ko-bg:#fde6e3; --wait:#8a5a00; --wait-bg:#fdf0d6;
+  --display:"Aileron","Segoe UI",system-ui,-apple-system,sans-serif;
+  --body:"Aileron","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e0f22; --surface:#17183a; --surface-2:#1d1f46; --ink:#e8e9f6; --muted:#a3a6c6; --line:#2e3060;
+  --accent:var(--bleu); --on-accent:#10112a;
+  --ok:#7fd283; --ok-bg:#16301b; --ko:#ff8a7c; --ko-bg:#3d1714; --wait:#f3c265; --wait-bg:#33270e; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e0f22; --surface:#17183a; --surface-2:#1d1f46; --ink:#e8e9f6; --muted:#a3a6c6; --line:#2e3060;
+  --accent:var(--bleu); --on-accent:#10112a;
+  --ok:#7fd283; --ok-bg:#16301b; --ko:#ff8a7c; --ko-bg:#3d1714; --wait:#f3c265; --wait-bg:#33270e; color-scheme:dark }
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;margin:0;min-height:100vh}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:18px 64px;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--display);font-weight:900;margin:0;text-wrap:balance;line-height:1.12;letter-spacing:-.005em}
+h1{font-size:clamp(1.6rem,4.5vw,2.2rem)} h2{font-size:1.3rem} h3{font-size:1.1rem}
+.eyebrow{font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:.78rem;color:var(--rouge)}
+.muted{color:var(--muted)} .small{font-size:.88rem} .mono{font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--bleu);outline-offset:2px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.top .grow{flex:1;min-width:0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 16px;min-height:44px;display:inline-flex;align-items:center;gap:8px;justify-content:center;font-weight:700}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:.9rem;color:var(--muted);min-width:0}
+input[type=range]{accent-color:var(--accent);width:100%}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:10px 14px;min-height:44px;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.choice{display:flex;flex-direction:column;gap:6px}
+/* bandeau */
+.bar{background:var(--marine);color:#fff;position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top,0px)}
+.bar-in{max-width:1040px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;min-height:60px}
+.bar a.home{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
+.bar .wm{font-family:var(--display);font-weight:900;font-size:1.35rem;letter-spacing:.02em}
+.bar .wm span{color:var(--bleu)}
+.bar .sp{flex:1}
+.bar .back{text-decoration:none;color:#fff;border-color:rgba(255,255,255,.35);background:transparent;min-height:40px}
+.stripes{display:flex;height:5px}
+.stripes i{flex:1}
+.stripes i:nth-child(1){background:var(--rouge)} .stripes i:nth-child(2){background:var(--bleu)} .stripes i:nth-child(3){background:var(--vert)} .stripes i:nth-child(4){background:#fff}
+/* accueil */
+.hero{display:flex;flex-direction:column;gap:6px;padding:6px 0 2px}
+.hero p{margin:0;max-width:62ch;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{text-decoration:none;display:flex;flex-direction:column;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:0;overflow:hidden;text-decoration:none;color:inherit}
+.card:hover{border-color:var(--muted)}
+.card .vis{height:96px;display:grid;place-items:center;color:#fff}
+.card .vis svg{height:64px;width:auto}
+.card.c1 .vis{background:var(--rouge)} .card.c2 .vis{background:var(--marine)} .card.c3 .vis{background:var(--vert)} .card.c4 .vis{background:var(--bleu);color:var(--marine)}
+.card .tx{padding:4px 16px 16px;display:flex;flex-direction:column;gap:4px}
+.card b{font-family:var(--display);font-weight:900;font-size:1.2rem}
+.card .tx span{color:var(--muted);font-size:.92rem}
+.install{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1.5px solid var(--bleu);border-radius:var(--r);padding:12px 14px}
+.install .grow{flex:1;min-width:200px}
+.install svg{flex:none;border-radius:10px}
+.foot{font-size:.8rem;color:var(--muted);text-align:center;margin-top:8px}
+/* nouveautés */
+.nv{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.nv .panel{border-top:5px solid var(--rouge)}
+.nv .panel:nth-child(2){border-top-color:var(--bleu)} .nv .panel:nth-child(3){border-top-color:var(--vert)}
+.nv p{margin:0}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.org{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.org > div{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--surface-2)}
+.org b{font-family:var(--display);font-weight:900;font-size:1.25rem;display:block}
+.org .i{border-left:5px solid var(--vert)} .org .e{border-left:5px solid var(--marine)} .org .a{border-left:5px solid var(--rouge)}
+.fiches{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:20;max-width:calc(100% - 32px)}
+.warn{background:var(--wait-bg);color:var(--wait);border-radius:8px;padding:10px 12px;font-size:.9rem}
+/* défibrillation */
+.df{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:14px;align-items:stretch}
+@media (max-width:760px){.df{grid-template-columns:1fr}}
+.df-screen{position:relative;background:#050a08;border-radius:16px;border:10px solid #2a302d;box-shadow:inset 0 0 0 1px #000;padding:10px 12px 12px;min-width:0;overflow:hidden;
+  background-image:linear-gradient(rgba(57,255,136,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(57,255,136,.07) 1px,transparent 1px),linear-gradient(rgba(57,255,136,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(57,255,136,.03) 1px,transparent 1px);
+  background-size:50px 50px,50px 50px,10px 10px,10px 10px;background-position:12px 10px}
+.df-screen canvas{display:block;width:100%;height:clamp(260px,42vw,420px)}
+.df-head{display:flex;align-items:baseline;gap:14px;color:#39ff88;font-family:var(--display);font-weight:700;letter-spacing:.06em;font-size:1rem}
+.df-head .df-lab{flex:1;color:#39ff88;opacity:.85}
+.df-hr{color:#39ff88;font-variant-numeric:tabular-nums}
+.df-hr b{font-size:2.6rem;line-height:1}
+.df-hr small{font-size:.8rem;opacity:.8}
+.df-p{position:absolute;left:14px;top:72%;color:#4fd2ff;font-family:var(--display);font-weight:700;font-size:.85rem;letter-spacing:.06em;opacity:.85}
+.df-msg{margin-top:8px;padding:8px 12px;min-height:2.6em;border-radius:8px;font-weight:700;font-size:.95rem;background:rgba(255,255,255,.1);color:#fff}
+.df-msg.idle{color:rgba(255,255,255,.45);background:rgba(255,255,255,.05)}
+.df-msg.warn{background:rgba(255,190,40,.18);color:#ffd36b}
+.df-msg.alert{background:rgba(255,120,0,.25);color:#ffb15c}
+.df-msg.ok{background:rgba(57,255,136,.16);color:#8dffbd}
+.df-screen.flash::after{content:"";position:absolute;inset:0;background:#fff;animation:dfflash .45s ease-out forwards;pointer-events:none}
+@keyframes dfflash{from{opacity:.95}to{opacity:0}}
+.df-keys{display:flex;flex-direction:column;gap:10px;background:#2a302d;border-radius:16px;padding:12px}
+@media (max-width:760px){.df-keys{display:grid;grid-template-columns:repeat(3,1fr)}.df-keys .dk{flex-direction:column;text-align:center;gap:4px;font-size:.85rem}.df-keys .dk.cpr{grid-column:span 2;flex-direction:row}}
+.dk{display:flex;align-items:center;gap:10px;min-height:56px;border-radius:12px;border:0;background:#3a423e;color:#e8efeb;padding:8px 12px;font-weight:700;text-align:left;box-shadow:inset 0 -3px 0 rgba(0,0,0,.35)}
+.dk .ico{width:40px;flex:none;display:grid;place-items:center}
+.dk .ico svg{width:38px;height:auto}
+.dk[aria-pressed="true"]{background:#16a34a;color:#fff}
+.dk.cpr[aria-pressed="true"]{background:#2563eb}
+.dk:active{transform:translateY(1px)}
+.dk.shock{flex-direction:column;justify-content:center;min-height:120px;background:#3a423e;gap:4px}
+.dk.shock svg{width:76px;height:auto;opacity:.55;filter:grayscale(.4)}
+.dk.shock.ready svg{opacity:1;filter:none;animation:shockblink .8s steps(2,end) infinite}
+.dk.shock.ready{box-shadow:0 0 0 3px #ff8a00,inset 0 -3px 0 rgba(0,0,0,.35)}
+@keyframes shockblink{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.dk.shock.ready svg{animation:none}.df-screen.flash::after{animation-duration:.01s}}
+.df-keys .btn.small{min-height:36px;padding:6px 10px;font-size:.85rem;background:transparent;color:#cfd8d3;border-color:#56605b}
+@media (max-width:760px){.dk.shock{grid-column:span 3}}
+#df-explain h3{margin:0}
+#df-explain p{margin:0;max-width:75ch}
+
+.fra-list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+/* métronome RCP */
+.rc-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.rc-grid{grid-template-columns:1fr}}
+.rc-main{background:#0f1714;color:#eaf5ef;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.rc-dial{width:min(78vw,300px);aspect-ratio:1;border-radius:50%;background:#0b120f;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:10px solid #22342c;position:relative}
+.rc-dial.comp{border-color:#1d7a45}
+.rc-dial.insuf{border-color:#2563eb}
+.rc-dial.beat{animation:rcbeat var(--beat,.55s) ease-out}
+@keyframes rcbeat{0%{box-shadow:0 0 0 0 rgba(76,194,122,.65);transform:scale(.965)}100%{box-shadow:0 0 0 26px rgba(76,194,122,0);transform:scale(1)}}
+.rc-phase{font-family:var(--display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9fd9b5;font-size:1rem}
+.rc-dial.insuf .rc-phase{color:#9cc0ff}
+.rc-count{font-family:var(--display);font-weight:800;font-size:clamp(40px,11vw,72px);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;color:#fff}
+.rc-cycle{font-size:.9rem;color:#a9b8b0}
+.rc-row{display:flex;justify-content:space-between;gap:12px;width:100%;font-size:.9rem;color:#a9b8b0;flex-wrap:wrap}
+.rc-row b{color:#fff}
+.rc-go{width:100%;min-height:56px;font-size:1.1rem}
+.rc-flash{width:100%;background:#7a4a00;color:#ffd99a;border-radius:10px;padding:10px 12px;font-weight:700;text-align:center}
+.rc-tapzone{width:100%;min-height:160px;border-radius:16px;border:2px dashed #3d6b52;background:#15231d;color:#cfe9da;font-weight:700;font-size:1.1rem;touch-action:manipulation}
+.rc-tapzone:active{background:#1d3a2c}
+.rc-meter{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0}
+.rc-rate{font-family:var(--display);font-weight:800;font-size:clamp(56px,16vw,96px);line-height:1;font-variant-numeric:tabular-nums;color:var(--muted)}
+.rc-rate.bon{color:var(--ok)} .rc-rate.lent,.rc-rate.rapide{color:var(--ko)}
+.rc-unit{color:var(--muted);font-size:.9rem}
+.rc-scale{position:relative;width:min(100%,460px);height:14px;border-radius:7px;display:flex;overflow:visible;margin-top:8px}
+.rc-scale .z{height:100%}
+.rc-scale .z.lent{flex:30;background:var(--ko-bg);border-radius:7px 0 0 7px}
+.rc-scale .z.bon{flex:20;background:var(--ok)}
+.rc-scale .z.rapide{flex:30;background:var(--ko-bg);border-radius:0 7px 7px 0}
+.rc-scale i{position:absolute;top:-6px;width:4px;height:26px;margin-left:-2px;background:var(--ink);border-radius:2px;transition:left .25s ease-out;left:50%}
+.rc-ticks{position:relative;width:min(100%,460px);height:16px;font-size:.75rem;color:var(--muted)}
+.rc-ticks span{position:absolute;transform:translateX(-50%)}
+.rc-ticks span:nth-child(1){left:0;transform:none}.rc-ticks span:nth-child(2){left:37.5%}.rc-ticks span:nth-child(3){left:62.5%}.rc-ticks span:nth-child(4){right:0;left:auto;transform:none}
+.rc-verdict{font-weight:700;color:var(--muted)}
+.rc-verdict.bon{color:var(--ok)} .rc-verdict.lent,.rc-verdict.rapide{color:var(--ko)}
+@media (prefers-reduced-motion: reduce){.rc-dial.beat{animation:none}}
+
+/* chrono arrêt cardiaque */
+.ch-grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
+@media (max-width:820px){.ch-grid2{grid-template-columns:1fr}}
+.ch-main{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.ch-top{display:flex;justify-content:space-between;gap:12px;color:var(--muted)}
+.ch-time{font-family:var(--display);font-weight:800;font-size:clamp(40px,8vw,64px);line-height:1;color:var(--ink)}
+.ch-pct{font-family:var(--display);font-weight:800;font-size:clamp(40px,8vw,64px);line-height:1}
+.ch-pct.hi{color:var(--ok)} .ch-pct.mid{color:var(--wait)} .ch-pct.lo{color:var(--ko)}
+.ch-svg{width:100%;height:auto;display:block}
+.ch-grid{stroke:var(--line);stroke-width:1}
+.ch-ax{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.ch-zone{fill:var(--ko-bg);opacity:.6}
+.ch-zl{fill:var(--ko);font-size:11px;font-weight:700;font-family:var(--body)}
+.ch-ref{stroke-width:2;stroke-dasharray:6 6}
+.ch-ref.no{stroke:var(--ko)} .ch-ref.cpr{stroke:#2563eb}
+.ch-line{fill:none;stroke:var(--ink);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.ch-dot{fill:var(--ko);stroke:var(--surface);stroke-width:3}
+.ch-dot.cpr{fill:#2563eb}
+.ch-ev{stroke-width:1.5;stroke-dasharray:3 4}
+.ch-ev.cpr{stroke:#2563eb} .ch-ev.stop{stroke:var(--muted)} .ch-ev.shock{stroke:#ff8a00;stroke-width:3;stroke-dasharray:none}
+.ch-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.ch-legend i.l{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.ch-legend i.act{border-color:var(--ink)} .ch-legend i.no{border-color:var(--ko);border-top-style:dashed} .ch-legend i.cpr{border-color:#2563eb;border-top-style:dashed}
+.ch-state{font-weight:700}
+.ch-res{background:var(--ok-bg);color:var(--ink);border-radius:8px;padding:10px 12px}
+.ch-big{min-height:54px;font-size:1.02rem}
+.ch-cprbtn[aria-pressed="true"]{background:#2563eb;border-color:#2563eb;color:#fff}
+.ch-shockbtn:not(:disabled){border-color:#ff8a00;color:#b45309;font-weight:700}
+.ch-log{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:2px;font-size:.9rem}
+
+/* ajustements charte sur les outils */
+.dk[aria-pressed="true"]{background:var(--vert);color:#0d2a10}
+.dk.cpr[aria-pressed="true"]{background:var(--bleu);color:#10112a}
+.ch-cprbtn[aria-pressed="true"]{background:var(--marine);border-color:var(--marine);color:#fff}
+.ch-ref.cpr{stroke:var(--bleu)} .ch-dot.cpr{fill:var(--bleu)} .ch-ev.cpr{stroke:var(--bleu)}
+.rc-dial.insuf{border-color:var(--bleu)}
+.df-n{color:#ffb15c;font-size:.9rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;z-index:60;max-width:calc(100vw - 32px)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+/* ====== Outils RCP : socle ====== */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[ch]));
+let tt; function toast(m){ const t = document.getElementById("toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 3200); }
+const ICON = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#2E2F8D"/><path d="M32 52 C14 40 8 31 8 22.5 C8 15.5 13.5 10 20 10 C25 10 29.5 13 32 17.5 C34.5 13 39 10 44 10 C50.5 10 56 15.5 56 22.5 C56 31 50 40 32 52 Z" fill="#E83828"/><path d="M6 33 H20 L24 26 L29 41 L34 19 L38 33 H58" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+const ICO = {
+  defib: `<svg viewBox="0 0 100 70" aria-hidden="true"><path d="M4 40 H24 L30 30 L36 40 H42 L48 8 L56 62 L62 40 H96" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+  chrono: `<svg viewBox="0 0 70 70" aria-hidden="true"><circle cx="35" cy="39" r="25" fill="none" stroke="currentColor" stroke-width="6"/><path d="M35 39 V24 M28 6 H42 M35 6 V14" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>`,
+  rcp: `<svg viewBox="0 0 80 70" aria-hidden="true"><path d="M26 8 h28 v14 h-28 z M40 22 v14 M12 60 h56" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 38 l12 12 l12 -12" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  news: `<svg viewBox="0 0 70 70" aria-hidden="true"><path d="M14 8 h30 l12 12 v42 h-42 z M44 8 v12 h12 M24 34 h22 M24 44 h22 M24 54 h14" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+const ROUTES = ["accueil", "defib", "chrono", "rcp", "nouveau"];
+const route = () => { const h = (location.hash || "").replace("#", ""); return ROUTES.includes(h) ? h : "accueil"; };
+let lastRoute = null;
+
+/* --- installation --- */
+const isStandalone = () => { try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } };
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let installHidden = false; try { installHidden = sessionStorage.getItem("rcp-noinstall") === "1"; } catch (e) {}
+function installBanner(){
+  if (installHidden || isStandalone()) return "";
+  const evt = window.__installEvt;
+  const how = evt ? "Elle s’ouvrira comme une application, avec son icône, même sans réseau."
+    : isIOS() ? "Dans Safari, touche le bouton Partager, puis « Sur l’écran d’accueil »."
+    : "Dans le menu du navigateur, choisis « Installer l’application » ou « Ajouter à l’écran d’accueil ».";
+  return `<div class="install">${ICON(48)}<div class="grow"><b>Installer Outils RCP sur cet appareil</b><div class="small muted">${how}</div></div>
+    ${evt ? `<button class="btn primary" data-act="install">Installer l’appli</button>` : ""}<button class="btn ghost" data-act="noinstall">Plus tard</button></div>`;
+}
+window.addEventListener("installready", () => { if (route() === "accueil") render(); });
+window.addEventListener("appinstalled", () => { installHidden = true; render(); toast("Appli installée."); });
+
+/* --- rendu --- */
+function bar(r){
+  return `<header class="bar"><div class="bar-in">
+      <a class="home" href="#accueil" aria-label="Accueil Outils RCP">${ICON(38)}<span class="wm">OUTILS <span>RCP</span></span></a>
+      <span class="sp"></span>${r !== "accueil" ? `<a class="btn back" href="#accueil">← Accueil</a>` : ""}
+    </div><div class="stripes"><i></i><i></i><i></i><i></i></div></header>`;
+}
+function renderHome(){
+  const card = (c, href, ico, t, d) => `<a class="card ${c}" href="#${href}"><span class="vis">${ico}</span><span class="tx"><b>${t}</b><span>${d}</span></span></a>`;
+  return `<div class="wrap">
+    ${installBanner()}
+    <div class="hero"><div class="eyebrow">Formation continue SSUAP · Arrêt cardiaque</div><h1>Faire comprendre l’arrêt cardiaque, du tracé au geste</h1>
+      <p>Trois outils à projeter ou à faire manipuler en formation, alignés sur le référentiel départemental SSUAP 2026.</p></div>
+    <div class="cards">
+      ${card("c1", "defib", ICO.defib, "Défibrillation", "Moniteur ECG : rythme sinusal, asystolie, fibrillation, effet du choc et du massage.")}
+      ${card("c2", "chrono", ICO.chrono, "Chances de survie", "Le graphe évolue en direct : chaque minute sans geste coûte 10 % de chances.")}
+      ${card("c3", "rcp", ICO.rcp, "Compressions", "Métronome 100 à 120/min, relais, et mesure du rythme avec le téléphone posé sur le mannequin.")}
+      ${card("c4", "nouveau", ICO.news, "Ce qui change en 2026", "Les nouveautés des fiches arrêt cardiaque, et qui fait quoi entre ILCOR, ERC et AHA.")}
+    </div>
+    <p class="foot">Outils pédagogiques : ils illustrent les principes et ne remplacent ni le référentiel ni les indications du DAE.</p>
+  </div>`;
+}
+function renderNews(){
+  return `<div class="wrap">
+    <header class="top"><div class="grow"><div class="eyebrow">Formation continue 2027</div><h1>Ce qui change en 2026</h1></div></header>
+    <div class="nv">
+      <section class="panel"><span class="tag">Insufflations</span><h2>Toujours commencer par les compressions</h2>
+        <p>Les 5 insufflations initiales sont supprimées chez l’enfant, le nourrisson et le noyé. Aucune étude chez l’homme ne prouve qu’elles améliorent la survie (ILCOR). La commission médicale s’aligne ici sur l’AHA plutôt que sur l’ERC, pour simplifier les procédures et l’enseignement.</p>
+        <p>Le rapport reste de <b>15 compressions pour 2 insufflations</b> chez l’enfant et le nourrisson, <b>30 pour 2</b> chez l’adulte.</p></section>
+      <section class="panel"><span class="tag">Compressions</span><h2>Nourrisson : les deux pouces</h2>
+        <p>La technique des <b>pouces superposés</b> au centre de la poitrine, sur la moitié inférieure du sternum, devient la seule technique chez le nourrisson, pour le citoyen comme pour l’opérationnel. Elle sert aussi en cas d’obstruction des voies aériennes du nourrisson, si les claques dans le dos sont inefficaces.</p>
+        <p>La position est uniformisée pour l’adulte, l’enfant et le nourrisson.</p></section>
+      <section class="panel"><span class="tag">Électrodes</span><h2>FV réfractaire : changer de vecteur</h2>
+        <p>Après <b>3 chocs inefficaces</b>, sur indication médicale, l’équipe peut passer en position <b>antéro-postérieure</b> avec une nouvelle paire d’électrodes (recommandé par l’ERC).</p>
+        <p>Une équipe médicale sur place peut tenter la double défibrillation séquentielle : 2 chocs espacés de moins d’une seconde, avec un DAE et un défibrillateur manuel. Elle fait encore l’objet d’études.</p></section>
+    </div>
+    <section class="panel"><h2>ILCOR, ERC, AHA : qui fait quoi ?</h2>
+      <div class="org">
+        <div class="i"><b>ILCOR</b><span class="small muted">Comité international de liaison sur la réanimation</span><p class="small" style="margin:6px 0 0">Analyse les études scientifiques internationales et construit un consensus sur les bonnes pratiques de réanimation.</p></div>
+        <div class="e"><b>ERC</b><span class="small muted">Conseil européen de réanimation</span><p class="small" style="margin:6px 0 0">Adapte et diffuse des recommandations pour l’Europe, à partir des travaux de l’ILCOR.</p></div>
+        <div class="a"><b>AHA</b><span class="small muted">Association américaine de cardiologie</span><p class="small" style="margin:6px 0 0">Publie des recommandations de réanimation et d’urgence cardiovasculaire, principalement pour les États-Unis.</p></div>
+      </div>
+      <p class="small" style="margin:0"><b>À retenir :</b> ILCOR = consensus scientifique international · ERC = référence européenne · AHA = référence américaine.</p></section>
+    <section class="panel"><h2>Fiches concernées <span class="small muted">(numérotation nationale)</span></h2>
+      <ul class="fiches">
+        <li><b>PSE 1</b> · 05AC05 Arrêt cardiaque, 05PR04 Arrêt cardiaque en équipe, 05PR05 Arrêt cardiaque en sauveteur isolé (09-2026) : reformulation complète, compressions d’abord, alignement sur le PSC.</li>
+        <li><b>PSE 1</b> · 05FT10 Compressions thoraciques (09-2026) : nourrisson aux 2 pouces, position uniformisée.</li>
+        <li><b>PSE 1</b> · 05FT16 Utilisation d’un DAE (09-2026) : ajout de la position antéro-postérieure comme cas particulier.</li>
+        <li><b>PSC</b> · 02PR03 Arrêt cardiaque, 02FT07 Compressions thoraciques (09-2026) : mêmes évolutions.</li>
+      </ul>
+      <p class="small muted" style="margin:0">Sources : présentation DGSCGC « Arrêt cardio-respiratoire » (CC BY-NC) et référentiel départemental SSUAP SDIS 88, version juillet 2026. Au SDIS 88, la recherche du pouls n’est pas systématique pour caractériser l’arrêt cardiaque.</p></section>
+  </div>`;
+}
+function render(){
+  const r = route();
+  if (lastRoute === "rcp" && r !== "rcp") { try { rcStop(); rcMeasureStop(); } catch (e) {} }
+  const views = { accueil: renderHome, defib: renderDefib, chrono: renderChrono, rcp: renderRcp, nouveau: renderNews };
+  document.getElementById("app").innerHTML = bar(r) + views[r]();
+  document.title = { accueil: "Outils RCP", defib: "Défibrillation · Outils RCP", chrono: "Chances de survie · Outils RCP", rcp: "Compressions · Outils RCP", nouveau: "Ce qui change · Outils RCP" }[r];
+  if (r !== lastRoute) scrollTo(0, 0);
+  lastRoute = r;
+}
+window.addEventListener("hashchange", render);
+
+/* --- interactions --- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const a = b.dataset.act;
+  if (a === "install") { const ev = window.__installEvt; if (!ev) return; ev.prompt(); try { const c = await ev.userChoice; if (c.outcome === "accepted") installHidden = true; } catch (x) {} window.__installEvt = null; render(); return; }
+  if (a === "noinstall") { installHidden = true; try { sessionStorage.setItem("rcp-noinstall", "1"); } catch (x) {} render(); return; }
+  if (a.startsWith("df-")) return dfClick(a, b);
+  if (a.startsWith("ch-")) return chClick(a, b);
+  if (a.startsWith("rc-")) return rcClick(a, b);
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.rc === "bpm") { RC.bpm = Number(t.value); const o = document.getElementById("rc-bpm-out"); if (o) o.textContent = RC.bpm; const d = document.getElementById("rc-dial"); if (d) d.style.setProperty("--beat", (60 / RC.bpm).toFixed(3) + "s"); if (RC.running && RC.source === "metro") rcSchedule(); }
+});
+
+/* ====== Défibrillation : moniteur ECG simulé ====== */
+const DF = {
+  rhythm: "sinus",      // sinus | asys | fv | post
+  cpr: false, fvAmp: 1, weak: 1, cycleDone: false, ready: false, analysing: false, sound: false,
+  t: 0, beatT: 0, hr: 75, nextRR: 0.8, beats: [], shockT: -99, pauseUntil: 0, outcome: null,
+  phiA: 0, phiB: 0, phiC: 0, modA: 0, modB: 0,
+  x: 0, prevE: null, prevP: null, loop: null, last: 0, timer: null, analyseTimer: null, msg: "", msgKind: "",
+  audio: null, shocks: 0, fails: 0, refractory: false,
+};
+const DF_TEXT = {
+  sinus: ["Rythme normal (sinusal)", "Chaque battement suit le même chemin électrique : l’onde P (contraction des oreillettes), le complexe QRS (contraction des ventricules) puis l’onde T (récupération). Le cœur pompe, le sang circule."],
+  asys: ["Asystolie", "Plus aucune activité électrique : le tracé est plat. Le défibrillateur ne délivre pas de choc, il n’y a rien à « remettre en ordre ». Seul le massage cardiaque fait circuler le sang."],
+  fv: ["Fibrillation ventriculaire", "L’activité électrique est anarchique : les fibres du cœur se contractent chacune de leur côté, le cœur « tremble » et ne pompe plus. Le sang ne circule plus. C’est le rythme que le choc électrique peut arrêter."],
+  post: ["Le choc", "Le choc ne « redémarre » pas le cœur : il arrête d’un coup l’activité électrique anarchique de toutes les cellules. C’est une remise à zéro, d’où le tracé plat juste après."],
+  weak: ["Après le choc : un cœur encore trop faible", "La fibrillation est arrêtée et le cœur relance une activité électrique, lente. Mais le muscle cardiaque, privé d’oxygène, est épuisé : il se contracte trop faiblement pour faire circuler le sang (courbe bleue presque plate). C’est pour cela qu’on reprend immédiatement le massage après le choc."],
+};
+function dfAudio(){ try { if (!DF.audio) DF.audio = new (window.AudioContext || window.webkitAudioContext)(); return DF.audio; } catch (e) { return null; } }
+function dfBeep(freq, dur, vol){ if (!DF.sound) return; const ac = dfAudio(); if (!ac) return; const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = freq; g.gain.value = vol || 0.08; o.connect(g); g.connect(ac.destination); const n = ac.currentTime; g.gain.setValueAtTime(vol || 0.08, n); g.gain.exponentialRampToValueAtTime(0.0001, n + dur); o.start(n); o.stop(n + dur + 0.02); }
+const gauss = (x, m, w) => Math.exp(-((x - m) * (x - m)) / (2 * w * w));
+function pqrst(ph){ // ph en secondes depuis le début du battement
+  return 0.13 * gauss(ph, 0.10, 0.026) - 0.09 * gauss(ph, 0.215, 0.009) + 1.05 * gauss(ph, 0.24, 0.011) - 0.26 * gauss(ph, 0.262, 0.011) + 0.30 * gauss(ph, 0.48, 0.045);
+}
+function pleth(ph){ return ph < 0 ? 0 : 0.95 * gauss(ph, 0.16, 0.07) + 0.35 * gauss(ph, 0.38, 0.06); }
+function cprShape(t){ const f = 110 / 60, ph = (t * f) % 1; return ph < 0.45 ? Math.sin(Math.PI * ph / 0.45) : -0.18 * Math.sin(Math.PI * (ph - 0.45) / 0.55); }
+function dfStep(dt){
+  DF.t += dt; const t = DF.t;
+  // dynamique de la FV : à grandes mailles qui s'épuise, entretenue par le massage
+  if (DF.rhythm === "fv") {
+    if (DF.cpr) DF.fvAmp += (0.95 - DF.fvAmp) * 0.06 * dt; else DF.fvAmp = Math.max(0.22, DF.fvAmp - 0.0085 * dt);
+    DF.modA += (Math.random() - 0.5) * 2.2 * dt; DF.modB += (Math.random() - 0.5) * 2.8 * dt;
+  }
+  if (DF.rhythm === "sinus" && DF.weak < 1 && DF.cpr) { DF.weak = Math.min(1, DF.weak + dt / 20); if (DF.weak >= 1 && !DF.cycleDone) { DF.cycleDone = true; dfSetMsg("Fin du cycle de 2 minutes de massage (accéléré ici). Arrêtez le massage : le défibrillateur va analyser le rythme.", "warn"); dfSync(); } }
+  // battements sinusaux
+  if (DF.rhythm === "sinus" && t - DF.beatT >= DF.nextRR) {
+    DF.beatT = t; DF.beats.push(t); if (DF.beats.length > 6) DF.beats.shift();
+    const target = 38 + 37 * DF.weak; DF.hr += Math.max(-4, Math.min(4, target - DF.hr));
+    DF.nextRR = 60 / DF.hr * (1 + (Math.random() - 0.5) * 0.04);
+    setTimeout(() => dfBeep(980, 0.07), 240);
+  }
+  if (DF.rhythm === "post" && t >= DF.pauseUntil) dfOutcome();
+}
+function dfECG(t){
+  let v = 0;
+  if (DF.rhythm === "sinus") { for (const b of DF.beats) { const ph = t - b; if (ph >= 0 && ph < 1.2) v += pqrst(ph); } v += 0.012 * Math.sin(t * 2 * Math.PI * 0.3); }
+  else if (DF.rhythm === "fv") {
+    const a = DF.fvAmp;
+    v = a * (0.42 * Math.sin(2 * Math.PI * 4.6 * t + 1.7 * Math.sin(DF.modA)) + 0.28 * Math.sin(2 * Math.PI * 6.3 * t + DF.modB) + 0.16 * Math.sin(2 * Math.PI * 3.1 * t + 0.6 * DF.modA))
+        * (0.75 + 0.25 * Math.sin(2 * Math.PI * 0.45 * t + DF.modB));
+  }
+  else v = 0.015 * Math.sin(2 * Math.PI * 0.25 * t) + 0.006 * (Math.random() - 0.5);
+  const s = t - DF.shockT;
+  if (s >= 0 && s < 1.2) v = s < 0.06 ? 3.5 : v * Math.min(1, s) + 2.6 * Math.exp(-(s - 0.06) / 0.18);
+  if (DF.cpr) v += 1.15 * cprShape(t) + 0.04 * (Math.random() - 0.5);
+  return v;
+}
+function dfPleth(t){
+  let v = 0;
+  if (DF.rhythm === "sinus") { const k = DF.weak < 1 ? 0.06 + 0.94 * Math.pow(DF.weak, 2) : 1; for (const b of DF.beats) v = Math.max(v, k * pleth(t - b - 0.22)); }
+  if (DF.cpr) v = Math.max(v, 0.42 * Math.max(0, cprShape(t - 0.12)));
+  return v;
+}
+function dfDraw(now){
+  const cv = document.getElementById("ecg");
+  if (!cv) { DF.loop = null; return; }
+  const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); DF.x = 0; DF.prevE = DF.prevP = null; }
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const dt = Math.min(0.05, Math.max(0, (now - (DF.last || now)) / 1000)); DF.last = now;
+  const pxs = W / 6, step = 1 / 250, yE = H * 0.40, kE = H * 0.17, yP = H * 0.90, kP = H * 0.17;
+  let rem = dt;
+  ctx.lineWidth = 2.2; ctx.lineJoin = "round"; ctx.lineCap = "round";
+  while (rem > 1e-6) {
+    const h = Math.min(step, rem); rem -= h; dfStep(h);
+    DF.x += pxs * h;
+    if (DF.x >= W) { DF.x = 0; DF.prevE = DF.prevP = null; }
+    ctx.clearRect(DF.x, 0, 16, H);
+    const e = yE - Math.max(-2.1, Math.min(2.1, dfECG(DF.t))) * kE, p = yP - dfPleth(DF.t) * kP * 1.6;
+    if (DF.prevE) { ctx.strokeStyle = "#39ff88"; ctx.beginPath(); ctx.moveTo(DF.prevE[0], DF.prevE[1]); ctx.lineTo(DF.x, e); ctx.stroke(); }
+    if (DF.prevP) { ctx.strokeStyle = "#4fd2ff"; ctx.beginPath(); ctx.moveTo(DF.prevP[0], DF.prevP[1]); ctx.lineTo(DF.x, p); ctx.stroke(); }
+    DF.prevE = [DF.x, e]; DF.prevP = [DF.x, p];
+  }
+  dfReadout();
+  DF.loop = requestAnimationFrame(dfDraw);
+}
+function dfStart(){ if (!DF.loop) { DF.last = 0; DF.x = 0; DF.prevE = DF.prevP = null; const cv = document.getElementById("ecg"); if (cv) cv.getContext("2d").clearRect(0, 0, cv.width, cv.height); DF.loop = requestAnimationFrame(dfDraw); } }
+function dfReadout(){
+  const hr = document.getElementById("df-hr"), lab = document.getElementById("df-lab");
+  if (!hr) return;
+  const txt = DF.rhythm === "sinus" ? String(Math.round(DF.hr)) : "---";
+  if (hr.textContent !== txt) hr.textContent = txt;
+  const l = DF.cpr ? "RCP 110/min" : DF.rhythm === "fv" ? (DF.fvAmp > 0.55 ? "FV grandes mailles" : "FV petites mailles") : DF.rhythm === "asys" ? "ASYSTOLIE" : DF.rhythm === "post" ? "CHOC DÉLIVRÉ" : DF.weak < 1 ? "RYTHME LENT, CŒUR FAIBLE" : "SINUSAL";
+  if (lab.textContent !== l) lab.textContent = l;
+}
+function dfSetMsg(m, kind){ DF.msg = m; DF.msgKind = kind || ""; const el = document.getElementById("df-msg"); if (el) { el.textContent = m || "Défibrillateur prêt."; el.className = "df-msg " + (m ? DF.msgKind : "idle"); } }
+function dfSync(){
+  const q = (s) => document.querySelector(s);
+  ["sinus","asys","fv"].forEach(r => { const b = q(`[data-act="df-rhythm"][data-v="${r}"]`); if (b) b.setAttribute("aria-pressed", String(DF.rhythm === r || (r === "sinus" && DF.rhythm === "post" && false))); });
+  const c = q('[data-act="df-cpr"]'); if (c) { c.setAttribute("aria-pressed", String(DF.cpr)); c.querySelector(".lbl").textContent = DF.cpr ? "Arrêter le massage" : "Massage cardiaque"; }
+  const sh = q('[data-act="df-shock"]'); if (sh) sh.classList.toggle("ready", DF.ready);
+  const rf = q('[data-act="df-refr"]'); if (rf) { rf.setAttribute("aria-pressed", String(DF.refractory)); rf.textContent = DF.refractory ? "FV réfractaire : oui" : "FV réfractaire : non"; }
+  const nc = q("#df-shocks"); if (nc) nc.textContent = DF.shocks ? `${DF.shocks} choc${DF.shocks > 1 ? "s" : ""}` : "";
+  const so = q('[data-act="df-sound"]'); if (so) { so.setAttribute("aria-pressed", String(DF.sound)); so.textContent = DF.sound ? "Son activé" : "Son coupé"; }
+  const ex = q("#df-explain");
+  if (ex) { const k = DF.rhythm === "sinus" && DF.weak < 1 ? "weak" : DF.rhythm; const [h, d] = DF_TEXT[k]; ex.innerHTML = `<h3>${h}</h3><p>${d}</p>` + (DF.cpr ? `<p><b>Massage cardiaque en cours.</b> Les grandes ondes régulières sur l’ECG sont produites par les compressions. Sur la courbe bleue, chaque compression fait circuler un peu de sang : moins qu’un cœur qui bat, mais assez pour oxygéner le cerveau et le cœur${DF.rhythm === "sinus" ? ", le temps que le cœur reprenne des forces. Sur la courbe bleue, les battements propres du cœur réapparaissent peu à peu." : DF.rhythm === "fv" ? " en attendant le choc. En fibrillation, le massage entretient aussi une « grosse » fibrillation, plus sensible au choc." : " en attendant les secours."}</p>` : "") + (DF.rhythm === "fv" && !DF.cpr ? `<p class="muted small">Sans massage, la fibrillation s’épuise : les ondulations deviennent plus petites et le choc a moins de chances de réussir.</p>` : ""); }
+}
+function dfAnalyse(){
+  clearTimeout(DF.analyseTimer); DF.ready = false; DF.analysing = true;
+  if (DF.cpr) { DF.cpr = false; }
+  dfSetMsg("Analyse du rythme en cours. Ne touchez pas la victime.", "warn"); dfSync();
+  DF.analyseTimer = setTimeout(() => {
+    DF.analysing = false;
+    if (DF.rhythm === "fv") { DF.ready = true; dfSetMsg("Choc recommandé. Écartez-vous de la victime. Appuyez sur le bouton orange clignotant.", "alert"); dfBeep(1400, 0.25, 0.06); }
+    else if (DF.rhythm === "sinus" && DF.cycleDone && DF.weak >= 1) { DF.cycleDone = false; dfSetMsg("Choc non recommandé. Ici, le cœur a retrouvé un rythme efficace et le sang circule. Sur le terrain, l’équipe le constate par des signes de vie : la victime respire efficacement, bouge ou ouvre les yeux. On cesse alors les compressions, la victime reste strictement allongée, on reprend le bilan primaire XABCDE et on se tient prêt à reprendre la RCP. Sans ces signes, on poursuit la RCP. Les électrodes restent en place.", "ok"); }
+    else if (DF.rhythm === "sinus" && DF.weak < 1) dfSetMsg("Choc non recommandé. Reprenez immédiatement le massage cardiaque.", "warn");
+    else dfSetMsg("Choc non recommandé." + (DF.rhythm === "asys" ? " Commencez ou reprenez le massage cardiaque." : ""), "");
+    dfSync();
+  }, 2600);
+}
+function dfSetRhythm(r){
+  clearTimeout(DF.analyseTimer); DF.analysing = false; DF.ready = false;
+  DF.rhythm = r; DF.outcome = null;
+  DF.fails = 0; DF.shocks = 0;
+  if (r === "sinus") { DF.cpr = false; DF.weak = 1; DF.hr = 75; DF.beatT = DF.t - 0.7; DF.nextRR = 0.8; DF.beats = []; dfSetMsg(""); }
+  if (r === "fv") { DF.fvAmp = 1; dfSetMsg(""); setTimeout(() => { if (DF.rhythm === "fv" && !DF.cpr && !DF.ready) dfAnalyse(); }, 2500); }
+  if (r === "asys") { dfSetMsg(""); setTimeout(() => { if (DF.rhythm === "asys" && !DF.cpr) dfAnalyse(); }, 2500); }
+  dfSync();
+}
+function dfShock(){
+  if (DF.analysing) return;
+  if (!DF.ready) {
+    if (DF.rhythm === "fv") { dfAnalyse(); return; }
+    dfSetMsg(DF.rhythm === "asys" ? "Choc non recommandé : en asystolie, il n’y a pas d’activité électrique à arrêter. Massez." : DF.rhythm === "sinus" && DF.weak < 1 ? "Choc non recommandé : la fibrillation est arrêtée. Massez pour aider le cœur à reprendre des forces." : "Choc non recommandé : le cœur bat normalement.", "");
+    return;
+  }
+  DF.ready = false; DF.shockT = DF.t; DF.rhythm = "post"; DF.pauseUntil = DF.t + 2.2;
+  DF.shocks++; DF.outcome = !DF.refractory && DF.fvAmp >= 0.5 ? "ok" : "fail";
+  dfBeep(220, 0.35, 0.12);
+  const scr = document.querySelector(".df-screen"); if (scr) { scr.classList.remove("flash"); void scr.offsetWidth; scr.classList.add("flash"); }
+  dfSetMsg("Choc délivré.", "alert"); dfSync();
+}
+function dfOutcome(){
+  if (DF.outcome === "ok") { DF.fails = 0; DF.rhythm = "sinus"; DF.weak = 0; DF.cycleDone = false; DF.hr = 38; DF.beatT = DF.t - 0.4; DF.nextRR = 1.6; DF.beats = []; dfSetMsg("Choc délivré. Reprenez immédiatement le massage cardiaque.", "alert"); }
+  else { DF.fails++; DF.rhythm = "fv"; DF.fvAmp = Math.max(0.3, DF.fvAmp * 0.9);
+    dfSetMsg(DF.fails >= 3 ? `FV réfractaire : ${DF.fails} chocs inefficaces. Reprenez immédiatement la RCP. Sur indication médicale, l’équipe peut changer de vecteur de défibrillation : nouvelle paire d’électrodes en position antéro-postérieure.` : "Le choc n’a pas suffi : la fibrillation persiste. Reprenez immédiatement la RCP, sans attendre les instructions du DAE. Il analysera de nouveau le rythme dans 2 minutes.", "warn"); }
+  DF.outcome = null; dfSync();
+}
+function dfClick(a, b){
+  if (a === "df-rhythm") dfSetRhythm(b.dataset.v);
+  else if (a === "df-shock") dfShock();
+  else if (a === "df-cpr") {
+    if (!DF.cpr && (DF.rhythm === "post" || (DF.rhythm === "sinus" && DF.weak >= 1 && !DF.cycleDone))) { dfSetMsg("Le massage cardiaque concerne une victime qui ne répond pas et ne respire pas.", ""); return; }
+    DF.cpr = !DF.cpr; clearTimeout(DF.analyseTimer); DF.analysing = false;
+    if (DF.cpr) { DF.ready = false; dfSetMsg(""); }
+    else if (DF.rhythm === "fv" || DF.rhythm === "asys" || (DF.rhythm === "sinus" && DF.cycleDone)) dfAnalyse();
+    dfSync();
+  }
+  else if (a === "df-refr") { DF.refractory = !DF.refractory; DF.fails = 0; dfSync(); }
+  else if (a === "df-sound") { DF.sound = !DF.sound; if (DF.sound) { const ac = dfAudio(); if (ac && ac.resume) ac.resume(); } dfSync(); }
+}
+const SHOCK_ICON = `<svg viewBox="0 0 100 90" aria-hidden="true"><path d="M50 4 L96 86 H4 Z" fill="#ff8a00" stroke="#7a3d00" stroke-width="4" stroke-linejoin="round"/><path d="M56 26 L38 56 H50 L44 78 L64 46 H52 Z" fill="#fff" stroke="#1d1d1d" stroke-width="2.5" stroke-linejoin="round"/></svg>`;
+function renderDefib(){
+  setTimeout(() => { dfStart(); dfSync(); dfSetMsg(DF.msg, DF.msgKind); }, 0);
+  return `<div class="wrap wide">
+    <header class="top"><div class="grow"><div class="eyebrow">Moniteur pédagogique</div><h1>Défibrillation</h1></div></header>
+    <div class="df">
+      <div class="df-screen">
+        <div class="df-head"><span>II</span><span class="df-lab" id="df-lab">SINUSAL</span><span class="df-n mono" id="df-shocks"></span><span class="df-hr"><small>FC</small> <b id="df-hr">75</b></span></div>
+        <canvas id="ecg" aria-label="Tracé ECG en direct"></canvas>
+        <div class="df-p">Circulation</div>
+        <div class="df-msg idle" id="df-msg" aria-live="polite">Défibrillateur prêt.</div>
+      </div>
+      <div class="df-keys">
+        <button class="dk" data-act="df-rhythm" data-v="sinus" aria-pressed="true"><span class="ico">${'<svg viewBox="0 0 40 20"><path d="M2 12 H11 L14 8 L17 12 H19 L21 2 L24 18 L26 12 H38" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>'}</span><span class="lbl">Rythme normal</span></button>
+        <button class="dk" data-act="df-rhythm" data-v="asys" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 20"><path d="M2 11 H38" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="lbl">Asystolie</span></button>
+        <button class="dk" data-act="df-rhythm" data-v="fv" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 20"><path d="M2 10 L5 4 L8 15 L11 6 L13 13 L16 3 L19 16 L22 7 L24 12 L27 4 L30 15 L33 8 L36 12 L38 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg></span><span class="lbl">Fibrillation ventriculaire</span></button>
+        <button class="dk shock" data-act="df-shock" aria-label="Délivrer le choc">${SHOCK_ICON}<span class="lbl">Choc</span></button>
+        <button class="dk cpr" data-act="df-cpr" aria-pressed="false"><span class="ico"><svg viewBox="0 0 40 24"><path d="M14 3 h12 v6 h-12 z M20 9 v5 M8 18 h24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 14 l5 4 l5 -4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl">Massage cardiaque</span></button>
+        <button class="btn ghost small" data-act="df-sound" aria-pressed="false">Son coupé</button>
+        <button class="btn ghost small" data-act="df-refr" aria-pressed="false" title="Les chocs échouent, pour travailler la FV réfractaire">FV réfractaire : non</button>
+      </div>
+    </div>
+    <div class="panel" id="df-explain"></div>
+    <section class="panel">
+      <h2>Les repères du référentiel</h2>
+      <ul class="fra-list">
+        <li>Mettre en œuvre le DAE le plus tôt possible, en interrompant le moins possible le massage. Poser les électrodes sans arrêter la RCP.</li>
+        <li>Pendant l’analyse, ne plus toucher la victime. C’est le moment du relais aux compressions.</li>
+        <li>Après la délivrance, ou non, d’un choc : reprendre la RCP immédiatement, sans attendre les instructions vocales.</li>
+        <li>Poursuivre la RCP jusqu’à une demande d’interruption par le DAE ou le relais par les renforts médicalisés.</li>
+        <li>FV réfractaire (3 chocs inefficaces) : sur indication médicale, nouvelle paire d’électrodes en position antéro-postérieure.</li>
+      </ul>
+      <p class="small muted" style="margin:0">Référentiel départemental SSUAP SDIS 88, fiches 05-PR-05 Arrêt cardiaque en équipe et 05-FT-12 Utilisation d’un DAE (version juillet 2026).</p>
+    </section>
+    <p class="small muted" style="margin:0">Simulation pédagogique simplifiée : les tracés et l’effet du choc illustrent le principe, ils ne reproduisent pas un enregistrement réel. En intervention, appliquer le référentiel départemental SSUAP du SDIS 88 et les indications du DAE.</p>
+  </div>`;
+}
+
+
+/* ====== Outil : chronomètre de l'arrêt cardiaque ====== */
+const CH = { running: false, t: 0, last: 0, speed: 1, cpr: false, chance: 100, path: [[0, 100]], events: [], shock: null, raf: null };
+const CH_NO = 10, CH_CPR = 3.5, CH_MAX = 12;   // % par minute ; durée affichée (min)
+function chFmt(min){ const s = Math.floor(min * 60); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
+function chReset(){ cancelAnimationFrame(CH.raf); Object.assign(CH, { running: false, t: 0, last: 0, cpr: false, chance: 100, path: [[0, 100]], events: [], shock: null, raf: null }); }
+function chStart(){ if (CH.running || CH.shock) return; if (CH.t === 0) CH.events.push({ t: 0, k: "start", l: "Effondrement" }); CH.running = true; CH.last = performance.now(); CH.raf = requestAnimationFrame(chLoop); chUpdate(); }
+function chPause(){ CH.running = false; cancelAnimationFrame(CH.raf); chUpdate(); }
+function chLoop(now){
+  if (!CH.running) return;
+  const dt = Math.min(0.25, (now - CH.last) / 1000) * CH.speed / 60; CH.last = now;   // en minutes
+  CH.t += dt;
+  CH.chance = Math.max(0, CH.chance - (CH.cpr ? CH_CPR : CH_NO) * dt);
+  const lp = CH.path[CH.path.length - 1];
+  if (CH.t - lp[0] > 0.02) CH.path.push([CH.t, CH.chance]);
+  if (CH.t >= CH_MAX) { CH.running = false; CH.events.push({ t: CH.t, k: "end", l: "Fin de la simulation" }); }
+  chUpdate();
+  if (CH.running) CH.raf = requestAnimationFrame(chLoop);
+}
+function chEvent(k){
+  if (CH.shock) return;
+  if (k === "cpr") { if (!CH.running && CH.t === 0) chStart(); CH.cpr = !CH.cpr; CH.path.push([CH.t, CH.chance]); CH.events.push({ t: CH.t, k: CH.cpr ? "cpr" : "stop", l: CH.cpr ? "Début du massage" : "Arrêt du massage" }); }
+  if (k === "shock") { if (CH.t === 0) return; CH.path.push([CH.t, CH.chance]); CH.shock = { t: CH.t, c: CH.chance }; CH.events.push({ t: CH.t, k: "shock", l: "Choc du défibrillateur" }); CH.running = false; cancelAnimationFrame(CH.raf); }
+  chUpdate();
+}
+function chSvg(){
+  const W = 640, H = 300, L = 44, R = 12, T = 14, B = 34, x = m => L + (W - L - R) * m / CH_MAX, y = c => T + (H - T - B) * (1 - c / 100);
+  let g = "";
+  for (let c = 0; c <= 100; c += 25) g += `<line x1="${L}" x2="${W - R}" y1="${y(c)}" y2="${y(c)}" class="ch-grid"/><text x="${L - 8}" y="${y(c) + 4}" text-anchor="end" class="ch-ax">${c} %</text>`;
+  for (let m = 0; m <= CH_MAX; m += 2) g += `<text x="${x(m)}" y="${H - 12}" text-anchor="middle" class="ch-ax">${m} min</text>`;
+  const zone = `<rect x="${x(0)}" y="${T}" width="${x(3) - x(0)}" height="${H - T - B}" class="ch-zone"/><text x="${x(1.5)}" y="${H - B - 8}" text-anchor="middle" class="ch-zl">3 premières minutes</text>`;
+  const ref = (slope, cls) => `<line x1="${x(0)}" y1="${y(100)}" x2="${x(Math.min(CH_MAX, 100 / slope))}" y2="${y(Math.max(0, 100 - slope * CH_MAX))}" class="${cls}"/>`;
+  const pts = CH.path.concat([[CH.t, CH.chance]]).map(p => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(" ");
+  const ev = CH.events.filter(e => e.k === "cpr" || e.k === "shock" || e.k === "stop").map(e => `<line x1="${x(e.t)}" x2="${x(e.t)}" y1="${T}" y2="${H - B}" class="ch-ev ${e.k}"/>`).join("");
+  const dot = `<circle cx="${x(CH.t)}" cy="${y(CH.chance)}" r="6" class="ch-dot ${CH.cpr ? "cpr" : ""}"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="ch-svg" role="img" aria-label="Évolution des chances de survie au cours du temps">${zone}${g}${ref(CH_NO, "ch-ref no")}${ref(CH_CPR, "ch-ref cpr")}${ev}<polyline points="${pts}" class="ch-line"/>${dot}</svg>`;
+}
+function chUpdate(){
+  const box = document.getElementById("ch-chart"); if (!box) return;
+  box.innerHTML = chSvg();
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  set("ch-time", chFmt(CH.t)); set("ch-pct", Math.round(CH.chance) + " %");
+  const st = CH.shock ? `Choc délivré à ${chFmt(CH.shock.t)} : chances estimées ${Math.round(CH.shock.c)} %` : !CH.running && CH.t === 0 ? "Prêt : lance le chrono au moment de l’effondrement" : CH.cpr ? "Massage en cours : la perte de chances ralentit" : CH.running ? "Aucun geste : chaque minute coûte environ 10 % de chances" : "En pause";
+  set("ch-state", st);
+  const pct = document.getElementById("ch-pct"); if (pct) pct.className = "ch-pct " + (CH.chance > 60 ? "hi" : CH.chance > 30 ? "mid" : "lo");
+  const go = document.getElementById("ch-go"); if (go) { go.textContent = CH.running ? "Pause" : CH.t === 0 ? "Effondrement : démarrer" : "Reprendre"; go.disabled = !!CH.shock || CH.t >= CH_MAX; }
+  const cpr = document.getElementById("ch-cpr"); if (cpr) { cpr.textContent = CH.cpr ? "Arrêter le massage" : "Débuter le massage"; cpr.setAttribute("aria-pressed", String(CH.cpr)); cpr.disabled = !!CH.shock; }
+  const sh = document.getElementById("ch-shock"); if (sh) sh.disabled = !!CH.shock || CH.t === 0;
+  const log = document.getElementById("ch-log"); if (log) log.innerHTML = CH.events.map(e => `<li><span class="mono">${chFmt(e.t)}</span> ${esc(e.l)}</li>`).join("");
+  const res = document.getElementById("ch-res");
+  if (res) { res.hidden = !CH.shock; if (CH.shock) { const noAct = Math.max(0, 100 - CH_NO * CH.shock.t), gain = Math.round(CH.shock.c) - Math.round(noAct); res.innerHTML = `<b>Choc à ${chFmt(CH.shock.t)} : ${Math.round(CH.shock.c)} % des chances de départ.</b> Sans aucun geste jusqu’au même moment, il en serait resté ${Math.round(noAct)} %.${gain > 0 ? ` Le massage a préservé ${gain} points de chances.` : " Un massage débuté plus tôt aurait ralenti la perte de chances."}`; } }
+}
+function chClick(a, b){
+  if (a === "ch-go") { CH.running ? chPause() : chStart(); return; }
+  if (a === "ch-cpr") { chEvent("cpr"); return; }
+  if (a === "ch-shock") { chEvent("shock"); return; }
+  if (a === "ch-reset") { chReset(); chUpdate(); return; }
+  if (a === "ch-speed") { CH.speed = Number(b.dataset.v); document.querySelectorAll('[data-act="ch-speed"]').forEach(x => x.setAttribute("aria-pressed", String(x === b))); return; }
+}
+function renderChrono(){
+  setTimeout(chUpdate, 0);
+  return `<div class="wrap wide">
+    <header class="top"><div class="grow"><div class="eyebrow">Chances de survie</div><h1>Chronomètre de l’arrêt cardiaque</h1></div></header>
+    <div class="ch-grid2">
+      <section class="ch-main">
+        <div class="ch-top"><div><div class="small">Temps écoulé</div><div class="ch-time mono" id="ch-time">00:00</div></div><div style="text-align:right"><div class="small">Chances de survie estimées</div><div class="ch-pct hi mono" id="ch-pct">100 %</div></div></div>
+        <div id="ch-chart"></div>
+        <div class="ch-legend"><span><i class="l act"></i>Ta situation</span><span><i class="l no"></i>Sans aucun geste</span><span><i class="l cpr"></i>Massage dès l’effondrement</span></div>
+        <div class="ch-state" id="ch-state" aria-live="polite"></div>
+        <div class="ch-res" id="ch-res" hidden></div>
+      </section>
+      <section class="panel">
+        <h2>Déroulé</h2>
+        <button class="btn primary ch-big" id="ch-go" data-act="ch-go">Effondrement : démarrer</button>
+        <button class="btn ch-big ch-cprbtn" id="ch-cpr" data-act="ch-cpr" aria-pressed="false">Débuter le massage</button>
+        <button class="btn ch-big ch-shockbtn" id="ch-shock" data-act="ch-shock" disabled>Choc du défibrillateur</button>
+        <div class="choice"><span class="small muted">Vitesse</span><div class="seg" role="group">${[[1, "Temps réel"], [4, "× 4"], [10, "× 10"]].map(([v, l]) => `<button data-act="ch-speed" data-v="${v}" aria-pressed="${CH.speed === v}">${l}</button>`).join("")}</div></div>
+        <button class="btn ghost" data-act="ch-reset">Recommencer</button>
+        <ol class="ch-log" id="ch-log"></ol>
+      </section>
+    </div>
+    <section class="panel">
+      <h2>Les repères</h2>
+      <ul class="fra-list">
+        <li>Chaque minute gagnée dans la mise en place d’un DAE peut augmenter de 10 % les chances de survie de la victime.</li>
+        <li>Sans geste de secours, des lésions cérébrales apparaissent en quelques minutes chez l’adulte, en quelques secondes chez l’enfant et le nourrisson. Les chances de survie deviennent quasiment nulles en environ huit minutes chez l’adulte.</li>
+        <li>Les compressions rétablissent une circulation artificielle égale à 20 à 30 % du débit cardiaque normal : assez pour garder le cerveau et le cœur oxygénés jusqu’au choc.</li>
+        <li>La chaîne de survie (reconnaître, alerter, RCP précoce, défibrillation précoce, prise en charge médicale) peut faire passer le taux de survie de 4 à 40 %.</li>
+        <li>Les applications de sollicitation citoyenne (Staying Alive, SAUV Life…) permettent d’engager plus tôt un témoin formé et un DAE.</li>
+      </ul>
+      <p class="small muted" style="margin:0">Modèle pédagogique simplifié : la courbe illustre l’ordre de grandeur, elle ne prédit pas la survie d’une victime. Pente sans geste : 10 % par minute ; avec massage : environ 3,5 % par minute. Repères tirés du référentiel départemental SSUAP SDIS 88, fiches 05-AC-06 Arrêt cardiaque et 05-FT-11 Compressions thoraciques (version juillet 2026).</p>
+    </section>
+  </div>`;
+}
+
+
+/* ====== Outil : métronome RCP + mesure des compressions ====== */
+const RC = {
+  mode: "adulte", vent: "adulte", bpm: 110, sound: true, relay: true, source: "metro",   // metro | capteur | ecran
+  running: false, phase: "idle", count: 0, cycle: 0, insuf: 0, startT: 0, elapsed: 0, lastRelay: 0,
+  timer: null, insufTimer: null, ac: null, wake: null,
+  // mesure
+  measuring: false, grav: null, filt: 0, armed: false, peakAmp: 3, times: [], lastDet: 0, total: 0, rate: null, permission: null,
+};
+const RC_MODES = { adulte: { n: 30, label: "Adulte · 30 / 2" }, enfant: { n: 15, label: "Enfant, nourrisson · 15 / 2" }, continu: { n: 0, label: "Compressions seules" }, ventil: { n: 0, label: "Insufflations seules" } };
+const RC_VENT = { adulte: [10, "Adulte, enfant · 10 / min"], nourrisson: [20, "Nourrisson · 20 / min"], nn: [30, "Nouveau-né · 30 / min"] };
+function rcAudio(){ try { if (!RC.ac) RC.ac = new (window.AudioContext || window.webkitAudioContext)(); if (RC.ac.resume) RC.ac.resume(); return RC.ac; } catch (e) { return null; } }
+function rcTone(f, d, v, type){ if (!RC.sound) return; const ac = rcAudio(); if (!ac) return; const o = ac.createOscillator(), g = ac.createGain(); o.type = type || "sine"; o.frequency.value = f; const n = ac.currentTime; g.gain.setValueAtTime(v || 0.2, n); g.gain.exponentialRampToValueAtTime(0.0001, n + d); o.connect(g); g.connect(ac.destination); o.start(n); o.stop(n + d + 0.02); }
+function rcTick(accent){ rcTone(accent ? 1500 : 1050, 0.05, accent ? 0.35 : 0.22, "square"); }
+function rcBreathTone(){ rcTone(520, 0.5, 0.18, "sine"); }
+
+function rcNow(){ return performance.now() / 1000; }
+function rcStart(){
+  rcAudio();
+  RC.running = true; RC.count = 0; RC.cycle = 1; RC.startT = rcNow(); RC.lastRelay = 0; RC.elapsed = 0;
+  if (RC.mode === "ventil") { RC.phase = "vent"; RC.insuf = 0; rcVentilate(); }
+  else { RC.phase = "comp"; if (RC.source === "metro") rcSchedule(); }
+  try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(w => RC.wake = w).catch(() => {}); } catch (e) {}
+  RC.clock = setInterval(rcClock, 250);
+  rcUpdate();
+}
+function rcStop(){
+  RC.running = false; RC.phase = "idle"; clearTimeout(RC.timer); clearTimeout(RC.insufTimer); clearInterval(RC.clock);
+  try { if (RC.wake) RC.wake.release(); } catch (e) {}
+  rcUpdate();
+}
+function rcSchedule(){
+  clearTimeout(RC.timer);
+  if (!RC.running || RC.source !== "metro") return;
+  RC.timer = setTimeout(() => { if (RC.phase === "comp") rcCompression(); rcSchedule(); }, 60000 / RC.bpm);
+}
+function rcCompression(){
+  if (!RC.running || RC.phase !== "comp") return;
+  RC.count++; RC.total++;
+  const n = RC_MODES[RC.mode].n;
+  rcTick(RC.count % 10 === 0 || (n && RC.count === n));
+  rcPulse();
+  if (n && RC.count >= n) { rcInsufflations(2, false); }
+  rcUpdate();
+}
+// Pouls perçu, ventilation absente ou anormale : insufflations seules, à la fréquence du référentiel
+function rcVentilate(){
+  clearTimeout(RC.insufTimer);
+  if (!RC.running || RC.phase !== "vent") return;
+  RC.insuf++; rcBreathTone(); rcPulse(); rcUpdate();
+  RC.insufTimer = setTimeout(rcVentilate, 60000 / RC_VENT[RC.vent][0]);
+}
+function rcInsufflations(k, initial){
+  RC.phase = "insuf"; RC.insuf = 0; RC.insufTotal = k; RC.initial = initial;
+  clearTimeout(RC.insufTimer);
+  const step = () => {
+    if (!RC.running || RC.phase !== "insuf") return;
+    RC.insuf++; rcBreathTone(); rcUpdate();
+    if (RC.insuf < k) RC.insufTimer = setTimeout(step, 2000);
+    else RC.insufTimer = setTimeout(() => { if (!RC.running) return; RC.phase = "comp"; RC.count = 0; if (!initial) RC.cycle++; rcUpdate(); }, 1600);
+  };
+  RC.insufTimer = setTimeout(step, 600);
+  rcUpdate();
+}
+function rcClock(){
+  if (!RC.running) return;
+  RC.elapsed = rcNow() - RC.startT;
+  if (RC.relay && RC.mode !== "ventil" && RC.elapsed - RC.lastRelay >= 120) { RC.lastRelay += 120; rcTone(880, .15, .25); setTimeout(() => rcTone(880, .15, .25), 220); setTimeout(() => rcTone(1180, .3, .25), 440); rcFlash("Relais ! Changez de sauveteur aux compressions, sans perdre de temps."); }
+  const t = document.getElementById("rc-time"); if (t) t.textContent = rcFmt(RC.elapsed);
+  if (RC.measuring && RC.lastDet && rcNow() - RC.lastDet > 2.2) { RC.rate = null; rcGauge(); }
+}
+const rcFmt = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+function rcPulse(){ const c = document.getElementById("rc-dial"); if (!c) return; c.classList.remove("beat"); void c.offsetWidth; c.classList.add("beat"); }
+function rcFlash(m){ const el = document.getElementById("rc-flash"); if (!el) return; el.textContent = m; el.hidden = false; clearTimeout(RC.flashT); RC.flashT = setTimeout(() => el.hidden = true, 5000); }
+
+/* --- mesure par le capteur de mouvement --- */
+async function rcMeasureStart(){
+  rcAudio();
+  if (typeof DeviceMotionEvent === "undefined") { RC.permission = "absent"; rcUpdate(); return; }
+  try { if (typeof DeviceMotionEvent.requestPermission === "function") { const r = await DeviceMotionEvent.requestPermission(); if (r !== "granted") { RC.permission = "refus"; rcUpdate(); return; } } } catch (e) { RC.permission = "refus"; rcUpdate(); return; }
+  RC.permission = "ok"; RC.measuring = true; RC.grav = null; RC.filt = 0; RC.armed = false; RC.times = []; RC.rate = null; RC.lastDet = 0; RC.gotData = false;
+  window.addEventListener("devicemotion", rcMotion);
+  setTimeout(() => { if (RC.measuring && !RC.gotData) { RC.permission = "absent"; rcMeasureStop(); } }, 1500);
+  rcUpdate();
+}
+function rcMeasureStop(){ RC.measuring = false; window.removeEventListener("devicemotion", rcMotion); rcUpdate(); }
+function rcMotion(e){
+  const a = e.accelerationIncludingGravity; if (!a || a.x == null) return;
+  RC.gotData = true;
+  const v = [a.x, a.y, a.z];
+  if (!RC.grav) RC.grav = v.slice();
+  for (let i = 0; i < 3; i++) RC.grav[i] = RC.grav[i] * 0.94 + v[i] * 0.06;               // gravité (passe-bas lent)
+  const gn = Math.hypot(...RC.grav) || 9.81, u = RC.grav.map(x => x / gn);
+  const lin = v.map((x, i) => x - RC.grav[i]);
+  const vert = lin[0] * u[0] + lin[1] * u[1] + lin[2] * u[2];                              // accélération verticale
+  RC.filt = RC.filt * 0.55 + vert * 0.45;                                                  // lissage
+  const th = Math.max(1.2, RC.peakAmp * 0.35), t = rcNow();
+  if (RC.filt < -th) RC.armed = true;
+  if (RC.armed && RC.filt > th) {
+    RC.armed = false;
+    if (t - RC.lastDet > 0.25) rcDetected(t);
+  }
+  RC.peakAmp = Math.max(RC.peakAmp * 0.995, Math.abs(RC.filt));
+}
+function rcDetected(t){
+  if (RC.lastDet && t - RC.lastDet < 2) { RC.times.push(t - RC.lastDet); if (RC.times.length > 5) RC.times.shift(); }
+  else RC.times = [];
+  RC.lastDet = t;
+  if (RC.times.length >= 2) { const s = RC.times.slice().sort((x, y) => x - y); RC.rate = Math.round(60 / s[Math.floor(s.length / 2)]); }
+  if (RC.running && RC.source !== "metro") { if (RC.phase === "insuf" && !RC.initial) { clearTimeout(RC.insufTimer); RC.phase = "comp"; RC.count = 0; RC.cycle++; } rcCompression(); }
+  else rcPulse();
+  rcGauge();
+}
+function rcTap(){ rcAudio(); rcDetected(rcNow()); }
+function rcVerdict(r){
+  if (r == null) return ["—", "", "En attente de compressions…"];
+  if (r < 100) return [r, "lent", "Trop lent : accélère."];
+  if (r > 120) return [r, "rapide", "Trop rapide : ralentis, laisse le thorax remonter."];
+  return [r, "bon", "Bon rythme, continue."];
+}
+function rcGauge(){
+  const el = document.getElementById("rc-rate"); if (!el) return;
+  const [v, cls, txt] = rcVerdict(RC.rate);
+  el.textContent = v; el.className = "rc-rate " + cls;
+  const m = document.getElementById("rc-verdict"); if (m) { m.textContent = txt; m.className = "rc-verdict " + cls; }
+  const nd = document.getElementById("rc-needle"); if (nd) { const r = RC.rate == null ? 110 : Math.max(70, Math.min(150, RC.rate)); nd.style.left = ((r - 70) / 80 * 100) + "%"; nd.style.opacity = RC.rate == null ? .25 : 1; }
+}
+function rcUpdate(){
+  const n = RC_MODES[RC.mode].n;
+  const big = document.getElementById("rc-count"), ph = document.getElementById("rc-phase"), cy = document.getElementById("rc-cycle"), dial = document.getElementById("rc-dial");
+  if (!big) return;
+  if (RC.phase === "vent") { big.textContent = String(RC.insuf); ph.textContent = "Insufflations"; dial.className = "rc-dial insuf"; }
+  else if (RC.phase === "insuf") { big.textContent = RC.insuf + " / " + RC.insufTotal; ph.textContent = RC.initial ? "Insufflations initiales" : "Insufflations"; dial.className = "rc-dial insuf"; }
+  else if (RC.phase === "comp") { big.textContent = n ? RC.count + " / " + n : String(RC.count); ph.textContent = "Compressions"; dial.className = "rc-dial comp"; }
+  else { big.textContent = n ? "0 / " + n : "0"; ph.textContent = "Prêt"; dial.className = "rc-dial"; }
+  cy.textContent = RC.mode === "ventil" ? RC_VENT[RC.vent][1] : RC.running ? (n ? "Cycle " + RC.cycle : "Compressions en continu") : RC_MODES[RC.mode].label;
+  const go = document.getElementById("rc-go"); if (go) go.textContent = RC.running ? "Arrêter" : "Démarrer la RCP";
+  const ms = document.getElementById("rc-ms"); if (ms) ms.textContent = RC.measuring ? "Arrêter la mesure" : "Mesurer avec le téléphone";
+  const pm = document.getElementById("rc-perm"); if (pm) { pm.hidden = !RC.permission || RC.permission === "ok"; pm.textContent = RC.permission === "refus" ? "L’accès aux capteurs de mouvement a été refusé. Autorise-le dans les réglages du navigateur, ou utilise le mode « Appuis sur l’écran »." : "Aucun capteur de mouvement détecté sur cet appareil. Utilise un téléphone, ou le mode « Appuis sur l’écran »."; }
+  const tp = document.getElementById("rc-tapzone"); if (tp) tp.hidden = RC.source !== "ecran";
+  dial.style.setProperty("--beat", (60 / RC.bpm).toFixed(3) + "s");
+  rcGauge();
+}
+function rcClick(a, b){
+  if (a === "rc-go") { RC.running ? rcStop() : rcStart(); return; }
+  if (a === "rc-ms") { RC.measuring ? rcMeasureStop() : rcMeasureStart(); return; }
+  if (a === "rc-tap") { rcTap(); return; }
+  if (a === "rc-mode") { RC.mode = b.dataset.v; rcStop(); }
+  else if (a === "rc-vent") { RC.vent = b.dataset.v; if (RC.running && RC.phase === "vent") { clearTimeout(RC.insufTimer); RC.insufTimer = setTimeout(rcVentilate, 60000 / RC_VENT[RC.vent][0]); } }
+  else if (a === "rc-src") { RC.source = b.dataset.v; if (RC.source === "capteur" && !RC.measuring) rcMeasureStart(); if (RC.running && RC.source === "metro") rcSchedule(); else clearTimeout(RC.timer); }
+  else if (a === "rc-sound") RC.sound = !RC.sound;
+  else if (a === "rc-relay") RC.relay = !RC.relay;
+  const y = scrollY; render(); scrollTo(0, y);
+}
+function renderRcp(){
+  setTimeout(rcUpdate, 0);
+  const seg = (act, cur, list) => `<div class="seg" role="group">${list.map(([v, l]) => `<button data-act="${act}" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join("")}</div>`;
+  return `<div class="wrap wide">
+    <header class="top"><div class="grow"><div class="eyebrow">Qualité de la RCP</div><h1>Métronome et compressions</h1></div></header>
+    <div class="rc-grid">
+      <section class="rc-main">
+        <div class="rc-dial" id="rc-dial" style="--beat:${(60 / RC.bpm).toFixed(3)}s">
+          <div class="rc-phase" id="rc-phase">Prêt</div>
+          <div class="rc-count" id="rc-count">0 / 30</div>
+          <div class="rc-cycle" id="rc-cycle"></div>
+        </div>
+        <div class="rc-row"><span class="mono">Temps <b id="rc-time">${rcFmt(RC.elapsed)}</b></span><span class="mono">${RC.mode === "ventil" ? "1 insufflation toutes les " + (60 / RC_VENT[RC.vent][0]) + " s" : RC.source === "metro" ? "Métronome " + RC.bpm + "/min" : RC.source === "capteur" ? "Comptage par le capteur" : "Comptage par appuis"}</span></div>
+        <div class="rc-flash" id="rc-flash" hidden></div>
+        <button class="btn primary rc-go" id="rc-go" data-act="rc-go">Démarrer la RCP</button>
+        <button class="rc-tapzone" id="rc-tapzone" data-act="rc-tap" ${RC.source === "ecran" ? "" : "hidden"}>Appuie ici à chaque compression</button>
+      </section>
+      <section class="panel">
+        <h2>Réglages</h2>
+        <div class="choice"><span class="small muted">Victime</span>${seg("rc-mode", RC.mode, [["adulte","Adulte 30/2"],["enfant","Enfant, nourrisson 15/2"],["continu","Compressions seules"],["ventil","Insufflations seules"]])}</div>
+        ${RC.mode === "ventil" ? `<div class="choice"><span class="small muted">Pouls perçu, ventilation absente ou anormale</span>${seg("rc-vent", RC.vent, [["adulte","Adulte, enfant 10/min"],["nourrisson","Nourrisson 20/min"],["nn","Nouveau-né 30/min"]])}</div>` : `<label class="f"><span>Rythme du métronome : <b class="mono" id="rc-bpm-out">${RC.bpm}</b> compressions/min</span><input type="range" id="rc-bpm" min="100" max="120" step="1" value="${RC.bpm}" data-rc="bpm"></label>
+        <div class="choice"><span class="small muted">Compter les compressions</span>${seg("rc-src", RC.source, [["metro","Métronome"],["capteur","Capteur du téléphone"],["ecran","Appuis sur l’écran"]])}</div>`}
+        <div class="actions"><button class="btn ${RC.sound ? "" : "ghost"}" data-act="rc-sound" aria-pressed="${RC.sound}">${RC.sound ? "Son activé" : "Son coupé"}</button><button class="btn ${RC.relay ? "" : "ghost"}" data-act="rc-relay" aria-pressed="${RC.relay}">${RC.relay ? "Relais toutes les 2 min" : "Sans relais"}</button></div>
+      </section>
+    </div>
+    <section class="panel">
+      <h2>Mesurer les compressions du stagiaire</h2>
+      <p class="small" style="margin:0">Pose le téléphone à plat sur le thorax du mannequin, écran vers le haut, sous les mains ou à côté du point de compression. Il compte les compressions et affiche le rythme en direct.</p>
+      <div class="rc-meter">
+        <div class="rc-rate" id="rc-rate">—</div>
+        <div class="rc-unit">compressions / min</div>
+        <div class="rc-scale"><span class="z lent"></span><span class="z bon"></span><span class="z rapide"></span><i id="rc-needle"></i></div>
+        <div class="rc-ticks"><span>70</span><span>100</span><span>120</span><span>150</span></div>
+        <div class="rc-verdict" id="rc-verdict">En attente de compressions…</div>
+      </div>
+      <div class="actions"><button class="btn primary" id="rc-ms" data-act="rc-ms">Mesurer avec le téléphone</button></div>
+      <div class="warn" id="rc-perm" hidden></div>
+      <p class="small muted" style="margin:0">Le téléphone mesure le rythme, pas la profondeur : vérifie à l’œil une poussée verticale (adulte : environ 5 cm sans dépasser 6 cm) et un relâchement complet du thorax.</p>
+    </section>
+    <section class="panel">
+      <h2>Les repères du référentiel</h2>
+      <ul class="fra-list">
+        <li>Fréquence comprise entre 100 et 120 compressions par minute, temps de compression égal au temps de relâchement.</li>
+        <li>Adulte : cycles de 30 compressions et 2 insufflations. Enfant et nourrisson : cycles de 15 compressions et 2 insufflations.</li>
+        <li><b>Nouveau 2026 :</b> plus d’insufflations initiales chez l’enfant, le nourrisson et le noyé. On débute toujours par les compressions.</li>
+        <li>Adulte : talon de la main sur la moitié inférieure du sternum, bras tendus, coudes verrouillés, environ 5 cm sans dépasser 6 cm.</li>
+        <li>Enfant : un tiers de l’épaisseur du thorax, soit environ 5 cm.</li>
+        <li><b>Nouveau 2026 :</b> nourrisson et nouveau-né, pulpe des deux pouces superposés sur la moitié inférieure du sternum, mains autour du thorax, environ 4 cm.</li>
+        <li>Laisser le thorax reprendre sa forme sans décoller le talon de la main ni les pouces.</li>
+        <li>Relais aux compressions toutes les 2 minutes, pendant l’analyse du DAE si possible. Un intervenant peut tenir le rôle de « coach ».</li>
+        <li>Insufflations impossibles (répulsion, vomissements, traumatisme de la face…) : compressions seules en continu à 100 à 120 par minute.</li>
+        <li>Pouls perçu mais ventilation absente ou anormale (3 secouristes ou plus) : insufflations seules, 10 par minute chez l’adulte et l’enfant, 20 chez le nourrisson, 30 chez le nouveau-né.</li>
+      </ul>
+      <p class="small muted" style="margin:0">Référentiel départemental SSUAP SDIS 88 : 05-FT-11 Compressions thoraciques, 05-PR-05 et 05-PR-06 Arrêt cardiaque (version juillet 2026).</p>
+    </section>
+  </div>`;
+}
+
+
+render();
+
+</script>
+</body>
+</html>
