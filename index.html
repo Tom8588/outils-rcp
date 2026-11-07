@@ -275,6 +275,48 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .eq-big{font-size:clamp(1.3rem,5vw,1.9rem)}
 @media (max-width:520px){.eq-top{flex-direction:column}.eq-kpi .small{font-size:.75rem}}
 .btn.danger{color:var(--ko);border-color:var(--ko)}
+/* mode exercice */
+body.exo-on{background:#0b0c1f}
+.exo-link{text-decoration:none}
+.exo{position:fixed;inset:0;background:#0b0c1f;color:#fff;display:flex;flex-direction:column;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px));overflow:auto}
+.exo-top{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.3rem}
+.exo-top .mono{flex:1}
+.exo-k{font-size:.75rem;font-weight:700;color:#9aa0d0;text-transform:uppercase;letter-spacing:.06em}
+.exo-x{width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:1.3rem}
+.exo-grid{flex:1;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:10px;min-height:0}
+@media (orientation:landscape) and (min-width:560px){.exo-grid{grid-template-rows:none;grid-template-columns:repeat(3,minmax(0,1fr))}}
+.exo-box{border-radius:18px;background:#191b42;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px;min-height:0;transition:background .25s;border:3px solid transparent}
+.exo-box.bon{background:#1d5a22;border-color:var(--vert)} .exo-box.lent,.exo-box.rapide{background:#6b1a12;border-color:var(--rouge)} .exo-box.juste{background:#5e4207;border-color:#f3c265}
+.exo-c{background:var(--marine)} .exo-c.insuf{background:#1f4f7a;border-color:var(--bleu)}
+.exo-c.hit{animation:exoHit .18s ease-out}
+@keyframes exoHit{0%{border-color:#fff}100%{border-color:transparent}}
+@media (prefers-reduced-motion:reduce){.exo-c.hit{animation:none}}
+.exo-l{font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:clamp(.85rem,3.6vw,1.1rem);color:#d7dafb}
+.exo-l small{text-transform:none;letter-spacing:0;font-weight:700;opacity:.8}
+.exo-v{font-weight:900;line-height:.95;font-size:clamp(3.4rem,min(19vw,11vh),8rem)}
+.exo-v small{font-size:.45em;opacity:.75}
+.exo-m{font-weight:900;font-size:clamp(1rem,4.6vw,1.5rem);min-height:1.3em}
+.exo-bar{position:relative;display:flex;width:min(86%,420px);height:10px;border-radius:5px;overflow:hidden;background:#000}
+.exo-bar .z.lent,.exo-bar .z.rapide{background:rgba(255,255,255,.22)} .exo-bar .z.bon{background:#8be08f}
+.exo-bar i{position:absolute;top:-4px;width:6px;height:18px;margin-left:-3px;background:#fff;border-radius:3px;transition:left .25s}
+.exo-go{min-height:76px;border:0;border-radius:18px;background:var(--vert);color:#0d2a10;font-weight:900;font-size:1.6rem;letter-spacing:.02em}
+.exo-go.stop{background:var(--rouge);color:#fff}
+.exo-setup{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.exo-seg{display:grid;grid-template-columns:repeat(3,1fr);background:#191b42;border-color:#2e3060}
+.exo-seg button{color:#fff;min-height:52px}
+.exo-seg button[aria-pressed="true"]{background:var(--bleu);color:#10112a}
+.exo-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.exo-opts .btn{color:#fff;border-color:#2e3060}
+.exo-opts .btn[aria-pressed="true"]{border-color:var(--bleu)}
+.exo-flash{background:#ff8a00;color:#1d1d1d;font-weight:900;text-align:center;padding:12px;border-radius:14px;font-size:1.2rem}
+.exo-perm{background:#6b1a12;border-radius:12px;padding:12px;font-weight:700}
+.exo-res{background:#191b42;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.exo-rh{display:flex;justify-content:space-between;gap:8px;font-size:1.1rem}
+.exo-rg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.exo-rg div{background:#0f1030;border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.exo-rg b{font-size:1.4rem;font-weight:900}.exo-rg span{font-size:.78rem;color:#aab0e0}
+[hidden]{display:none!important}
+.exo-res{flex:1;justify-content:center}.exo-res .exo-rg b{font-size:clamp(1.4rem,7vw,2.4rem)}.exo-rh{font-size:clamp(1.1rem,5vw,1.5rem)}
 
 /* ajustements charte sur les outils */
 .dk[aria-pressed="true"]{background:var(--vert);color:#0d2a10}
@@ -301,7 +343,7 @@ const ICO = {
   team: `<svg viewBox="0 0 90 70" aria-hidden="true"><path d="M6 18 H84 M6 36 H84 M6 54 H84" stroke="currentColor" stroke-width="3" opacity=".45"/><rect x="8" y="12" width="30" height="12" rx="3" fill="currentColor"/><rect x="44" y="30" width="22" height="12" rx="3" fill="currentColor"/><rect x="30" y="48" width="44" height="12" rx="3" fill="currentColor"/></svg>`,
   news: `<svg viewBox="0 0 70 70" aria-hidden="true"><path d="M14 8 h30 l12 12 v42 h-42 z M44 8 v12 h12 M24 34 h22 M24 44 h22 M24 54 h14" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
-const ROUTES = ["accueil", "defib", "chrono", "rcp", "equipe", "nouveau"];
+const ROUTES = ["accueil", "defib", "chrono", "rcp", "equipe", "nouveau", "exercice"];
 const route = () => { const h = (location.hash || "").replace("#", ""); return ROUTES.includes(h) ? h : "accueil"; };
 let lastRoute = null;
 
@@ -337,7 +379,7 @@ function renderHome(){
     <div class="cards">
       ${card("c1", "defib", ICO.defib, "Défibrillation", "Moniteur ECG : rythme sinusal, asystolie, fibrillation, effet du choc et du massage.")}
       ${card("c2", "chrono", ICO.chrono, "Chances de survie", "Le graphe évolue en direct : chaque minute sans geste coûte 10 % de chances.")}
-      ${card("c3", "rcp", ICO.rcp, "Compressions", "Métronome 100 à 120/min, relais, et mesure du rythme avec le téléphone posé sur le mannequin.")}
+      ${card("c3", "rcp", ICO.rcp, "Compressions", "Métronome, relais, et mesure du rythme et de l’enfoncement avec le téléphone posé sur le mannequin. Mode exercice plein écran.")}
       ${card("c5", "equipe", ICO.team, "Chronologie en équipe", "Pendant l’exercice, on note chaque action ; à la fin, le temps sans compressions, les délais, les relais et un débriefing.")}
       ${card("c4", "nouveau", ICO.news, "Ce qui change en 2026", "Les nouveautés des fiches arrêt cardiaque, et qui fait quoi entre ILCOR, ERC et AHA.")}
     </div>
@@ -377,10 +419,11 @@ function renderNews(){
 }
 function render(){
   const r = route();
-  if (lastRoute === "rcp" && r !== "rcp") { try { rcStop(); rcMeasureStop(); } catch (e) {} }
-  const views = { accueil: renderHome, defib: renderDefib, chrono: renderChrono, rcp: renderRcp, equipe: renderEquipe, nouveau: renderNews };
-  document.getElementById("app").innerHTML = bar(r) + views[r]();
-  document.title = { accueil: "Outils RCP", defib: "Défibrillation · Outils RCP", chrono: "Chances de survie · Outils RCP", rcp: "Compressions · Outils RCP", equipe: "Chronologie en équipe · Outils RCP", nouveau: "Ce qui change · Outils RCP" }[r];
+  if ((lastRoute === "rcp" || lastRoute === "exercice") && r !== "rcp" && r !== "exercice") { try { rcStop(); rcMeasureStop(); } catch (e) {} }
+  const views = { accueil: renderHome, defib: renderDefib, chrono: renderChrono, rcp: renderRcp, equipe: renderEquipe, nouveau: renderNews, exercice: renderExo };
+  document.body.classList.toggle("exo-on", r === "exercice");
+  document.getElementById("app").innerHTML = (r === "exercice" ? "" : bar(r)) + views[r]();
+  document.title = { accueil: "Outils RCP", defib: "Défibrillation · Outils RCP", chrono: "Chances de survie · Outils RCP", rcp: "Compressions · Outils RCP", equipe: "Chronologie en équipe · Outils RCP", nouveau: "Ce qui change · Outils RCP", exercice: "Mode exercice · Outils RCP" }[r];
   if (r !== lastRoute) scrollTo(0, 0);
   lastRoute = r;
 }
@@ -396,6 +439,7 @@ document.addEventListener("click", async e => {
   if (a.startsWith("ch-")) return chClick(a, b);
   if (a.startsWith("rc-")) return rcClick(a, b);
   if (a.startsWith("eq-")) return eqClick(a, b);
+  if (a.startsWith("exo-")) return exoClick(a, b);
 });
 document.addEventListener("input", e => {
   const t = e.target;
@@ -926,7 +970,7 @@ function renderRcp(){
   setTimeout(rcUpdate, 0);
   const seg = (act, cur, list) => `<div class="seg" role="group">${list.map(([v, l]) => `<button data-act="${act}" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join("")}</div>`;
   return `<div class="wrap wide">
-    <header class="top"><div class="grow"><div class="eyebrow">Qualité de la RCP</div><h1>Métronome et compressions</h1></div></header>
+    <header class="top"><div class="grow"><div class="eyebrow">Qualité de la RCP</div><h1>Métronome et compressions</h1></div><a class="btn primary exo-link" href="#exercice">Mode exercice plein écran</a></header>
     <div class="rc-grid">
       <section class="rc-main">
         <div class="rc-dial" id="rc-dial" style="--beat:${(60 / RC.bpm).toFixed(3)}s">
@@ -1214,6 +1258,104 @@ function renderEquipe(){
       </section>
     </div>
     <p class="small muted" style="margin:0">Appuyer sur « Analyse » arrête aussi le compteur de compressions. Après un choc ou un choc non recommandé, appuyer sur le gros bouton dès la reprise.</p>
+  </div>`;
+}
+
+/* ====== Mode exercice : un seul écran de téléphone, lisible de loin ====== */
+const EXO = { guide: false, guideT: null, refresh: null, lastTotal: 0, done: null };
+function exoGuide(on){
+  clearTimeout(EXO.guideT);
+  if (!on) return;
+  const tick = () => { if (!RC.running || !EXO.guide) return; if (RC.phase === "comp") rcTick(false); EXO.guideT = setTimeout(tick, 60000 / RC.bpm); };
+  tick();
+}
+async function exoStart(){
+  RC.source = "capteur"; RC.stats = null; RC.total = 0; EXO.done = null; EXO.lastTotal = 0;
+  if (!RC.measuring) await rcMeasureStart();
+  if (RC.permission !== "ok") { exoPaint(); return; }
+  rcStart(); exoGuide(EXO.guide);
+  try { const de = document.documentElement; if (!document.fullscreenElement && de.requestFullscreen) await de.requestFullscreen(); } catch (e) {}
+  exoPaint();
+}
+function exoStop(){
+  const S = RC.stats;
+  EXO.done = { t: RC.elapsed, n: RC.total || 0, cycles: RC.cycle, S: S ? { ...S } : null };
+  rcStop(); exoGuide(false); exoPaint();
+}
+function exoCls(kind, v){
+  if (v == null) return "";
+  if (kind === "rate") return v < 100 ? "lent" : v > 120 ? "rapide" : "bon";
+  return v < 4.5 ? "lent" : v < 5 ? "juste" : v <= 6 ? "bon" : "rapide";
+}
+function exoMsg(kind, v){
+  if (v == null) return "";
+  if (kind === "rate") return v < 100 ? "Plus vite" : v > 120 ? "Moins vite" : "Bon rythme";
+  return v < 4.5 ? "Plus fort" : v < 5 ? "Un peu plus" : v <= 6 ? "Bonne profondeur" : "Moins fort";
+}
+function exoPaint(){
+  const q = id => document.getElementById(id); if (!q("exo")) { clearInterval(EXO.refresh); return; }
+  const n = RC_MODES[RC.mode].n, set = (id, v) => { const e = q(id); if (e && e.innerHTML !== v) e.innerHTML = v; };
+  // compressions
+  let big, sub, cls = "";
+  if (RC.phase === "insuf") { big = `${RC.insuf}<small> / ${RC.insufTotal}</small>`; sub = "Insufflations"; cls = "insuf"; }
+  else if (RC.phase === "vent") { big = String(RC.insuf); sub = "Insufflations"; cls = "insuf"; }
+  else if (RC.running) { big = n ? `${RC.count}<small> / ${n}</small>` : String(RC.count); sub = n ? `Cycle ${RC.cycle}` : "Compressions en continu"; }
+  else { big = n ? `0<small> / ${n}</small>` : "0"; sub = RC_MODES[RC.mode].label; }
+  set("exo-count", big); set("exo-csub", sub);
+  const cb = q("exo-cbox"); if (cb) cb.className = "exo-box exo-c " + cls;
+  if ((RC.total || 0) !== EXO.lastTotal) { EXO.lastTotal = RC.total || 0; if (cb) { cb.classList.remove("hit"); void cb.offsetWidth; cb.classList.add("hit"); } }
+  // rythme et profondeur
+  const live = RC.measuring && RC.running;
+  const r = live ? RC.rate : null, d = live ? RC.depth : null;
+  set("exo-rate", r == null ? "—" : String(r)); set("exo-rmsg", r == null ? (RC.running ? "En attente…" : "") : exoMsg("rate", r));
+  set("exo-depth", d == null ? "—" : d.toFixed(1).replace(".", ",")); set("exo-dmsg", d == null ? (RC.running ? "En attente…" : "") : exoMsg("depth", d));
+  const rb = q("exo-rbox"); if (rb) rb.className = "exo-box " + exoCls("rate", r);
+  const db = q("exo-dbox"); if (db) db.className = "exo-box " + exoCls("depth", d);
+  const rn = q("exo-rneedle"); if (rn) { rn.style.left = (r == null ? 50 : Math.max(0, Math.min(100, (r - 70) / 80 * 100))) + "%"; rn.style.opacity = r == null ? .2 : 1; }
+  const dn = q("exo-dneedle"); if (dn) { dn.style.left = (d == null ? 50 : Math.max(0, Math.min(100, (d - 2) / 6 * 100))) + "%"; dn.style.opacity = d == null ? .2 : 1; }
+  set("exo-time", rcFmt(RC.running ? RC.elapsed : EXO.done ? EXO.done.t : 0));
+  // bouton et panneaux
+  const go = q("exo-go"); if (go) { go.textContent = RC.running ? "Arrêter" : "Démarrer"; go.className = "exo-go " + (RC.running ? "stop" : ""); }
+  const st = q("exo-setup"); if (st) st.hidden = RC.running;
+  const perm = q("exo-perm");
+  if (perm) { perm.hidden = !(RC.permission === "refus" || RC.permission === "absent"); perm.textContent = RC.permission === "refus" ? "Le capteur de mouvement a été refusé : autorise-le dans les réglages du navigateur, puis recommence." : "Cet appareil ne fournit pas de capteur de mouvement. Le mode exercice fonctionne sur téléphone ou tablette."; }
+  const res = q("exo-res");
+  if (res) {
+    const D = EXO.done; res.hidden = !D || RC.running;
+    const gr = document.querySelector(".exo-grid"); if (gr) gr.hidden = !!D && !RC.running;
+    if (D && !RC.running) { const S = D.S, pct = k => S && S.n ? Math.round(S[k] / S.n * 100) + " %" : "—";
+      res.innerHTML = `<div class="exo-rh"><b>Bilan</b><span class="mono">${rcFmt(D.t)} · ${D.n} compressions</span></div>
+        <div class="exo-rg"><div><b class="mono">${S && S.n ? (S.sumD / S.n).toFixed(1).replace(".", ",") + " cm" : "—"}</b><span>profondeur moyenne</span></div><div><b class="mono">${pct("depth")}</b><span>entre 5 et 6 cm</span></div><div><b class="mono">${pct("rate")}</b><span>entre 100 et 120/min</span></div><div><b class="mono">${pct("duty")}</b><span>compression = relâchement</span></div></div>`; }
+  }
+}
+function exoClick(a, b){
+  if (a === "exo-go") { RC.running ? exoStop() : exoStart(); return; }
+  if (a === "exo-mode") { EXO.done = null; RC.mode = b.dataset.v; document.querySelectorAll('[data-act="exo-mode"]').forEach(x => x.setAttribute("aria-pressed", String(x === b))); exoPaint(); return; }
+  if (a === "exo-guide") { EXO.guide = !EXO.guide; b.setAttribute("aria-pressed", String(EXO.guide)); b.textContent = EXO.guide ? "Bip-guide " + RC.bpm + "/min : oui" : "Bip-guide : non"; exoGuide(EXO.guide && RC.running); return; }
+  if (a === "exo-sound") { RC.sound = !RC.sound; b.setAttribute("aria-pressed", String(RC.sound)); b.textContent = RC.sound ? "Son : oui" : "Son : non"; return; }
+  if (a === "exo-quit") { if (RC.running) exoStop(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {} location.hash = "rcp"; return; }
+}
+function renderExo(){
+  if (RC.mode === "ventil") RC.mode = "adulte";
+  clearInterval(EXO.refresh); EXO.refresh = setInterval(exoPaint, 100); setTimeout(exoPaint, 0);
+  const m = (v, l) => `<button data-act="exo-mode" data-v="${v}" aria-pressed="${RC.mode === v}">${l}</button>`;
+  return `<div class="exo" id="exo">
+    <div class="exo-top"><span class="mono" id="exo-time">00:00</span><span class="exo-k">${RC.K !== 1 ? "Étalonné" : "Non étalonné"}</span><button class="exo-x" data-act="exo-quit" aria-label="Quitter le mode exercice">✕</button></div>
+    <div class="exo-flash" id="rc-flash" hidden></div>
+    <div class="exo-grid">
+      <div class="exo-box exo-c" id="exo-cbox"><span class="exo-l">Compressions</span><b class="exo-v mono" id="exo-count">0</b><span class="exo-m" id="exo-csub"></span></div>
+      <div class="exo-box" id="exo-rbox"><span class="exo-l">Rythme <small>/min</small></span><b class="exo-v mono" id="exo-rate">—</b>
+        <div class="exo-bar"><span class="z lent" style="flex:30"></span><span class="z bon" style="flex:20"></span><span class="z rapide" style="flex:30"></span><i id="exo-rneedle"></i></div><span class="exo-m" id="exo-rmsg"></span></div>
+      <div class="exo-box" id="exo-dbox"><span class="exo-l">Enfoncement <small>cm</small></span><b class="exo-v mono" id="exo-depth">—</b>
+        <div class="exo-bar"><span class="z lent" style="flex:3"></span><span class="z bon" style="flex:1"></span><span class="z rapide" style="flex:2"></span><i id="exo-dneedle"></i></div><span class="exo-m" id="exo-dmsg"></span></div>
+    </div>
+    <div class="exo-res" id="exo-res" hidden></div>
+    <div class="exo-perm" id="exo-perm" hidden></div>
+    <div class="exo-setup" id="exo-setup">
+      <div class="seg exo-seg" role="group">${m("adulte", "Adulte 30/2")}${m("enfant", "Enfant 15/2")}${m("continu", "Continu")}</div>
+      <div class="exo-opts"><button class="btn ghost" data-act="exo-guide" aria-pressed="${EXO.guide}">${EXO.guide ? "Bip-guide " + RC.bpm + "/min : oui" : "Bip-guide : non"}</button><button class="btn ghost" data-act="exo-sound" aria-pressed="${RC.sound}">${RC.sound ? "Son : oui" : "Son : non"}</button></div>
+    </div>
+    <button class="exo-go" id="exo-go" data-act="exo-go">Démarrer</button>
   </div>`;
 }
 
