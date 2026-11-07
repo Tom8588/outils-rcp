@@ -83,7 +83,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .card:hover{border-color:var(--muted)}
 .card .vis{height:96px;display:grid;place-items:center;color:#fff}
 .card .vis svg{height:64px;width:auto}
-.card.c1 .vis{background:var(--rouge)} .card.c2 .vis{background:var(--marine)} .card.c3 .vis{background:var(--vert)} .card.c4 .vis{background:var(--bleu);color:var(--marine)}
+.card.c1 .vis{background:var(--rouge)} .card.c2 .vis{background:var(--marine)} .card.c3 .vis{background:var(--vert)} .card.c4 .vis{background:var(--bleu);color:var(--marine)} .card.c5 .vis{background:linear-gradient(135deg,var(--marine) 0 60%,var(--rouge) 60%)}
 .card .tx{padding:4px 16px 16px;display:flex;flex-direction:column;gap:4px}
 .card b{font-family:var(--display);font-weight:900;font-size:1.2rem}
 .card .tx span{color:var(--muted);font-size:.92rem}
@@ -221,6 +221,60 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .rc-bilan span{font-size:.8rem;color:var(--muted)}
 .linklike{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;font-weight:700}
 .rc-rate.juste,.rc-verdict.juste{color:var(--wait)}
+/* chronologie en équipe */
+.eq-live{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+@media (max-width:820px){.eq-live{grid-template-columns:1fr}}
+.eq-main{background:#0f1030;color:#eef0ff;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.eq-top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.eq-time{font-weight:900;font-size:clamp(44px,9vw,68px);line-height:1}
+.eq-kpi{display:flex;gap:16px;flex-wrap:wrap}
+.eq-kpi > div{display:flex;flex-direction:column;gap:2px;min-width:110px}
+.eq-kpi .small{color:#aab0e0}
+.eq-big{font-weight:900;font-size:1.9rem;line-height:1.05}
+.eq-big.hi{color:#7fd283} .eq-big.mid{color:#f3c265} .eq-big.lo{color:#ff8a7c}
+.eq-comp{border:0;border-radius:16px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#2a2c66;color:#fff;box-shadow:inset 0 0 0 3px #4a4ea0}
+.eq-comp b{font-size:clamp(1.3rem,4vw,1.8rem);font-weight:900}
+.eq-comp small{opacity:.8}
+.eq-comp.on{background:var(--vert);color:#0d2a10;box-shadow:none}
+.eq-pause{font-weight:900;font-size:1.2rem;text-align:center;padding:8px;border-radius:10px;background:rgba(255,255,255,.08)}
+.eq-pause.mid{background:rgba(243,194,101,.22);color:#ffd98a} .eq-pause.lo{background:rgba(232,56,40,.35);color:#fff}
+.eq-hint{background:#7a4a00;color:#ffe0ad;border-radius:10px;padding:10px 12px;font-weight:700;text-align:center}
+.eq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.eq-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.eq-b{min-height:64px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface-2);font-weight:900;font-size:1rem;padding:6px}
+.eq-b:active{transform:translateY(1px)}
+.eq-b.c-relais{border-color:var(--bleu)} .eq-b.c-dae{border-color:var(--vert)} .eq-b.c-ana{border-color:#f3c265}
+.eq-b.c-choc{background:#ff8a00;border-color:#ff8a00;color:#1d1d1d}
+.eq-b.c-vie{border-color:var(--vert);color:var(--ok)} .eq-b.c-fin{border-color:var(--marine)}
+.eq-go{min-height:60px;font-size:1.1rem}
+.eq-input{border:1.5px solid var(--line);background:var(--surface-2);border-radius:10px;padding:10px;min-height:44px;color:var(--ink)}
+.eq-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.eq-tile{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:2px}
+.eq-tile b{font-size:1.45rem;font-weight:900}
+.eq-tile span{font-size:.8rem;color:var(--muted)}
+.eq-tile.hi b{color:var(--ok)} .eq-tile.mid b{color:var(--wait)} .eq-tile.lo b{color:var(--ko)}
+.eq-svg{width:100%;height:auto;display:block}
+.eq-off{fill:var(--ko-bg)} .eq-on{fill:var(--vert)}
+.eq-mk line{stroke:var(--ink);stroke-width:1.5}
+.eq-mk text{fill:var(--muted);font-size:10px;font-weight:700;font-family:var(--body)}
+.eq-mk.choc path{fill:#ff8a00} .eq-mk.choc line{stroke:#ff8a00;stroke-width:2.5}
+.eq-mk.relais line{stroke:var(--marine);stroke-dasharray:2 2}
+.eq-ax{fill:var(--muted);font-size:10px;font-family:var(--body)}
+.eq-leg{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted)}
+.eq-leg i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.eq-leg i.on{background:var(--vert)} .eq-leg i.off{background:var(--ko-bg);border:1px solid var(--ko)} .eq-leg i.sh{background:#ff8a00}
+.eq-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.eq-cols h3{margin-bottom:6px}
+.eq-hl{display:flex;flex-direction:column}
+.eq-hrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+.eq-hrow:first-child{border-top:0}
+.eq-hrow .linklike{flex:1;text-align:left;min-width:180px}
+@media print{.bar,.eq-hist,.actions .btn,.foot{display:none!important}body{background:#fff}.panel{border:0}details{display:block}details > *{display:block}}
+.eq-kpi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.eq-kpi > div{min-width:0}
+.eq-big{font-size:clamp(1.3rem,5vw,1.9rem)}
+@media (max-width:520px){.eq-top{flex-direction:column}.eq-kpi .small{font-size:.75rem}}
+.btn.danger{color:var(--ko);border-color:var(--ko)}
 
 /* ajustements charte sur les outils */
 .dk[aria-pressed="true"]{background:var(--vert);color:#0d2a10}
@@ -244,9 +298,10 @@ const ICO = {
   defib: `<svg viewBox="0 0 100 70" aria-hidden="true"><path d="M4 40 H24 L30 30 L36 40 H42 L48 8 L56 62 L62 40 H96" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
   chrono: `<svg viewBox="0 0 70 70" aria-hidden="true"><circle cx="35" cy="39" r="25" fill="none" stroke="currentColor" stroke-width="6"/><path d="M35 39 V24 M28 6 H42 M35 6 V14" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>`,
   rcp: `<svg viewBox="0 0 80 70" aria-hidden="true"><path d="M26 8 h28 v14 h-28 z M40 22 v14 M12 60 h56" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 38 l12 12 l12 -12" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  team: `<svg viewBox="0 0 90 70" aria-hidden="true"><path d="M6 18 H84 M6 36 H84 M6 54 H84" stroke="currentColor" stroke-width="3" opacity=".45"/><rect x="8" y="12" width="30" height="12" rx="3" fill="currentColor"/><rect x="44" y="30" width="22" height="12" rx="3" fill="currentColor"/><rect x="30" y="48" width="44" height="12" rx="3" fill="currentColor"/></svg>`,
   news: `<svg viewBox="0 0 70 70" aria-hidden="true"><path d="M14 8 h30 l12 12 v42 h-42 z M44 8 v12 h12 M24 34 h22 M24 44 h22 M24 54 h14" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
-const ROUTES = ["accueil", "defib", "chrono", "rcp", "nouveau"];
+const ROUTES = ["accueil", "defib", "chrono", "rcp", "equipe", "nouveau"];
 const route = () => { const h = (location.hash || "").replace("#", ""); return ROUTES.includes(h) ? h : "accueil"; };
 let lastRoute = null;
 
@@ -278,11 +333,12 @@ function renderHome(){
   return `<div class="wrap">
     ${installBanner()}
     <div class="hero"><div class="eyebrow">Formation continue SSUAP · Arrêt cardiaque</div><h1>Faire comprendre l’arrêt cardiaque, du tracé au geste</h1>
-      <p>Trois outils à projeter ou à faire manipuler en formation, alignés sur le référentiel départemental SSUAP 2026.</p></div>
+      <p>Des outils à projeter ou à faire manipuler en formation, alignés sur le référentiel départemental SSUAP 2026.</p></div>
     <div class="cards">
       ${card("c1", "defib", ICO.defib, "Défibrillation", "Moniteur ECG : rythme sinusal, asystolie, fibrillation, effet du choc et du massage.")}
       ${card("c2", "chrono", ICO.chrono, "Chances de survie", "Le graphe évolue en direct : chaque minute sans geste coûte 10 % de chances.")}
       ${card("c3", "rcp", ICO.rcp, "Compressions", "Métronome 100 à 120/min, relais, et mesure du rythme avec le téléphone posé sur le mannequin.")}
+      ${card("c5", "equipe", ICO.team, "Chronologie en équipe", "Pendant l’exercice, on note chaque action ; à la fin, le temps sans compressions, les délais, les relais et un débriefing.")}
       ${card("c4", "nouveau", ICO.news, "Ce qui change en 2026", "Les nouveautés des fiches arrêt cardiaque, et qui fait quoi entre ILCOR, ERC et AHA.")}
     </div>
     <p class="foot">Outils pédagogiques : ils illustrent les principes et ne remplacent ni le référentiel ni les indications du DAE.</p>
@@ -322,9 +378,9 @@ function renderNews(){
 function render(){
   const r = route();
   if (lastRoute === "rcp" && r !== "rcp") { try { rcStop(); rcMeasureStop(); } catch (e) {} }
-  const views = { accueil: renderHome, defib: renderDefib, chrono: renderChrono, rcp: renderRcp, nouveau: renderNews };
+  const views = { accueil: renderHome, defib: renderDefib, chrono: renderChrono, rcp: renderRcp, equipe: renderEquipe, nouveau: renderNews };
   document.getElementById("app").innerHTML = bar(r) + views[r]();
-  document.title = { accueil: "Outils RCP", defib: "Défibrillation · Outils RCP", chrono: "Chances de survie · Outils RCP", rcp: "Compressions · Outils RCP", nouveau: "Ce qui change · Outils RCP" }[r];
+  document.title = { accueil: "Outils RCP", defib: "Défibrillation · Outils RCP", chrono: "Chances de survie · Outils RCP", rcp: "Compressions · Outils RCP", equipe: "Chronologie en équipe · Outils RCP", nouveau: "Ce qui change · Outils RCP" }[r];
   if (r !== lastRoute) scrollTo(0, 0);
   lastRoute = r;
 }
@@ -339,6 +395,7 @@ document.addEventListener("click", async e => {
   if (a.startsWith("df-")) return dfClick(a, b);
   if (a.startsWith("ch-")) return chClick(a, b);
   if (a.startsWith("rc-")) return rcClick(a, b);
+  if (a.startsWith("eq-")) return eqClick(a, b);
 });
 document.addEventListener("input", e => {
   const t = e.target;
@@ -942,6 +999,223 @@ function renderRcp(){
   </div>`;
 }
 
+
+/* ====== Outil : chronologie de l'ACR en équipe ====== */
+const EQ_EV = {
+  start:  { l: "Début de la prise en charge", short: "Début" },
+  comp:   { l: "Compressions : reprise", short: "Compressions" },
+  stop:   { l: "Compressions : arrêt", short: "Arrêt" },
+  relais: { l: "Relais aux compressions", short: "Relais" },
+  dae:    { l: "DAE en place, électrodes posées", short: "DAE" },
+  analyse:{ l: "Analyse du DAE", short: "Analyse" },
+  choc:   { l: "Choc délivré", short: "Choc" },
+  nochoc: { l: "Choc non recommandé", short: "Pas de choc" },
+  alerte: { l: "Renfort médical demandé", short: "Alerte" },
+  o2:     { l: "Oxygène branché", short: "O₂" },
+  canule: { l: "Canule oropharyngée", short: "Canule" },
+  asp:    { l: "Aspiration", short: "Aspiration" },
+  vie:    { l: "Signes de vie : arrêt de la RCP", short: "Signes de vie" },
+  fin:    { l: "Relais par l’équipe médicale, fin", short: "Fin" },
+};
+const EQ = { team: "3", label: "", t0: 0, ev: [], running: false, timer: null, view: "live", hist: [], open: null };
+try { EQ.hist = JSON.parse(localStorage.getItem("rcp-equipe") || "[]"); } catch (e) {}
+const eqNow = () => (performance.now() - EQ.t0) / 1000;
+const eqFmt = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+const eqDur = s => s < 60 ? Math.round(s) + " s" : Math.floor(s / 60) + " min " + String(Math.round(s % 60)).padStart(2, "0") + " s";
+
+/* état dérivé des événements */
+function eqState(ev, now){
+  let on = false, onSince = 0, offSince = null, compT = 0, firstComp = null, lastRelay = null, lastAnalyse = null, started = false;
+  const pauses = [];
+  for (const e of ev) {
+    if (e.k === "start") { started = true; offSince = e.t; }
+    if (e.k === "comp" && !on) { on = true; onSince = e.t; if (firstComp == null) firstComp = e.t; if (offSince != null && firstComp !== e.t) pauses.push([offSince, e.t]); offSince = null; }
+    if ((e.k === "stop" || e.k === "analyse" || e.k === "vie" || e.k === "fin") && on) { on = false; compT += e.t - onSince; offSince = e.t; }
+    if (e.k === "relais") lastRelay = e.t;
+    if (e.k === "analyse") lastAnalyse = e.t;
+  }
+  const end = now;
+  if (on) compT += end - onSince;
+  const rcpStart = firstComp, rcpSpan = rcpStart == null ? 0 : end - rcpStart;
+  const curPause = !on && offSince != null && firstComp != null ? end - offSince : 0;
+  return { on, compT, firstComp, lastRelay, lastAnalyse, pauses, rcpSpan, curPause, started, ccf: rcpSpan > 0 ? compT / rcpSpan : null };
+}
+function eqAdd(k){
+  if (!EQ.running) return;
+  const t = eqNow(), s = eqState(EQ.ev, t);
+  if (k === "toggle") k = s.on ? "stop" : "comp";
+  if (k === "comp") { const h = document.getElementById("eq-hint"); if (h) h.hidden = true; }
+  EQ.ev.push({ t, k });
+  if (k === "choc" || k === "nochoc") eqHint("Reprendre la RCP immédiatement, sans attendre les instructions vocales.");
+  if (k === "analyse") eqHint("Ne plus toucher la victime. C’est le moment du relais.");
+  if (k === "fin" || k === "vie") { eqFinish(); return; }
+  eqTick(); eqLog();
+}
+let eqHintT; function eqHint(m){ const el = document.getElementById("eq-hint"); if (!el) return; el.textContent = m; el.hidden = false; clearTimeout(eqHintT); eqHintT = setTimeout(() => el.hidden = true, 6000); }
+function eqStart(){
+  EQ.t0 = performance.now(); EQ.ev = [{ t: 0, k: "start" }]; EQ.running = true; EQ.view = "live";
+  try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(w => EQ.wake = w).catch(() => {}); } catch (e) {}
+  clearInterval(EQ.timer); EQ.timer = setInterval(eqTick, 250); render();
+}
+function eqFinish(){
+  if (!EQ.running) return;
+  const t = eqNow(); if (!EQ.ev.some(e => e.k === "fin" || e.k === "vie")) EQ.ev.push({ t, k: "fin" });
+  EQ.running = false; clearInterval(EQ.timer); try { if (EQ.wake) EQ.wake.release(); } catch (e) {}
+  const rec = { id: Date.now().toString(36), date: new Date().toISOString(), team: EQ.team, label: EQ.label, ev: EQ.ev, end: EQ.ev[EQ.ev.length - 1].t };
+  EQ.hist.unshift(rec); EQ.hist = EQ.hist.slice(0, 20);
+  try { localStorage.setItem("rcp-equipe", JSON.stringify(EQ.hist)); } catch (e) {}
+  EQ.open = rec.id; EQ.view = "debrief"; render(); scrollTo(0, 0);
+}
+function eqTick(){
+  if (!EQ.running) return;
+  const t = eqNow(), s = eqState(EQ.ev, t), set = (id, v) => { const e = document.getElementById(id); if (e && e.textContent !== v) e.textContent = v; };
+  set("eq-time", eqFmt(t));
+  const cb = document.getElementById("eq-comp");
+  if (cb) { cb.classList.toggle("on", s.on); cb.querySelector("b").textContent = s.on ? "Compressions en cours" : (s.firstComp == null ? "Début des compressions" : "Reprise des compressions"); cb.querySelector("small").textContent = s.on ? "Toucher pour signaler un arrêt" : "Toucher dès que les mains reprennent"; }
+  const pz = document.getElementById("eq-pause");
+  if (pz) { const p = s.curPause; pz.hidden = s.on || s.firstComp == null; pz.className = "eq-pause " + (p > 10 ? "lo" : p > 5 ? "mid" : ""); pz.textContent = "Sans compressions depuis " + Math.floor(p) + " s"; }
+  set("eq-ccf", s.ccf == null ? "—" : Math.round(s.ccf * 100) + " %");
+  const ccf = document.getElementById("eq-ccf"); if (ccf) ccf.className = "eq-big mono " + (s.ccf == null ? "" : s.ccf >= 0.8 ? "hi" : s.ccf >= 0.6 ? "mid" : "lo");
+  const sinceR = s.firstComp == null ? null : t - (s.lastRelay != null ? s.lastRelay : s.firstComp);
+  set("eq-relay", sinceR == null ? "—" : eqFmt(sinceR));
+  const rl = document.getElementById("eq-relay"); if (rl) rl.className = "eq-big mono " + (sinceR == null ? "" : sinceR > 150 ? "lo" : sinceR > 120 ? "mid" : "");
+  const sinceA = s.lastAnalyse == null ? null : t - s.lastAnalyse;
+  set("eq-ana", sinceA == null ? "—" : eqFmt(Math.max(0, 120 - sinceA)));
+  const an = document.getElementById("eq-ana"); if (an) an.className = "eq-big mono " + (sinceA != null && sinceA >= 120 ? "mid" : "");
+  set("eq-ana-l", sinceA == null ? "Avant la prochaine analyse" : sinceA >= 120 ? "Analyse attendue" : "Avant la prochaine analyse");
+}
+function eqLog(){
+  const el = document.getElementById("eq-log"); if (!el) return;
+  el.innerHTML = EQ.ev.slice().reverse().slice(0, 8).map(e => `<li><span class="mono">${eqFmt(e.t)}</span> ${esc(EQ_EV[e.k].l)}</li>`).join("");
+}
+
+/* débriefing */
+function eqAnalyse(rec){
+  const ev = rec.ev, end = rec.end, s = eqState(ev, end), first = k => { const e = ev.find(x => x.k === k); return e ? e.t : null; };
+  const all = k => ev.filter(x => x.k === k).map(x => x.t);
+  const chocs = all("choc"), analyses = all("analyse"), relais = all("relais");
+  const longPauses = s.pauses.filter(([a, b]) => b - a > 10);
+  const longest = s.pauses.reduce((m, [a, b]) => Math.max(m, b - a), 0);
+  // reprise après choc
+  const afterShock = chocs.map(t => { const c = ev.find(x => x.k === "comp" && x.t >= t); return c ? c.t - t : null; }).filter(x => x != null);
+  // relais pendant l'analyse : un relais entre l'analyse et la reprise des compressions
+  const relaisAna = analyses.filter(t => { const c = ev.find(x => x.k === "comp" && x.t > t); return relais.some(r => r >= t && (!c || r <= c.t)); }).length;
+  const rcpFrom = s.firstComp ?? 0, segs = [rcpFrom, ...relais.filter(r => r > rcpFrom), end];
+  const gaps = []; for (let i = 1; i < segs.length; i++) gaps.push(segs[i] - segs[i - 1]);
+  const maxGap = gaps.length ? Math.max(...gaps) : 0;
+  const m = { s, first: { comp: s.firstComp, dae: first("dae"), choc: chocs[0] ?? null, alerte: first("alerte"), o2: first("o2"), canule: first("canule") }, chocs, analyses, relais, longPauses, longest, afterShock, relaisAna, maxGap };
+  // points forts / à travailler (repères du référentiel 05-PR-05 et repères internationaux ERC)
+  const good = [], todo = [];
+  if (m.first.comp != null && m.first.comp <= 15) good.push(`RCP débutée vite (${eqDur(m.first.comp)}).`); else if (m.first.comp != null) todo.push(`Premières compressions à ${eqDur(m.first.comp)} : le référentiel demande de débuter immédiatement, rien ne doit retarder la RCP (port des gants compris).`); else todo.push("Aucune compression enregistrée.");
+  if (s.ccf != null) (s.ccf >= 0.8 ? good : todo).push(`Fraction de compressions : ${Math.round(s.ccf * 100)} % du temps de RCP${s.ccf >= 0.8 ? "." : ". Repère international (ERC) : au moins 80 %. Chaque arrêt fait chuter la pression de perfusion du cœur et du cerveau."}`);
+  if (longPauses.length) todo.push(`${longPauses.length} interruption${longPauses.length > 1 ? "s" : ""} de plus de 10 s (la plus longue : ${eqDur(longest)}).`); else if (s.firstComp != null) good.push("Aucune interruption de plus de 10 s.");
+  if (afterShock.length) { const w = Math.max(...afterShock); (w <= 5 ? good : todo).push(w <= 5 ? "Reprise de la RCP immédiate après chaque choc." : `Reprise après le choc jusqu’à ${eqDur(w)} : reprendre immédiatement, sans attendre les instructions vocales.`); }
+  if (m.first.dae == null) todo.push("DAE non mis en œuvre."); else good.push(`DAE en place à ${eqFmt(m.first.dae)}.`);
+  if (s.firstComp != null && end - s.firstComp > 150) { (maxGap <= 150 ? good : todo).push(maxGap <= 150 ? "Relais réguliers, environ toutes les 2 minutes." : `Le même sauveteur a comprimé jusqu’à ${eqDur(maxGap)} d’affilée : relayer toutes les 2 minutes environ.`); }
+  if (analyses.length) (relaisAna ? good : todo).push(relaisAna ? `Relais pendant l’analyse (${relaisAna}/${analyses.length}).` : "Aucun relais pendant les analyses : c’est le moment idéal, la RCP est déjà interrompue.");
+  if (m.first.o2 == null) todo.push("Oxygène non enregistré : à administrer dès que possible, sans retarder la RCP."); else good.push(`Oxygène à ${eqFmt(m.first.o2)}.`);
+  if (m.first.alerte == null) todo.push("Demande de renfort médical non enregistrée.");
+  else if (rec.team === "2dae" && analyses.length && m.first.alerte < analyses[0] - 1) todo.push("À 2 secouristes avec DAE, le renfort médical se demande juste après la première analyse, pour ne pas retarder le DAE.");
+  else good.push(`Renfort médical demandé à ${eqFmt(m.first.alerte)}.`);
+  m.good = good; m.todo = todo; return m;
+}
+function eqTimeline(rec){
+  const ev = rec.ev, end = Math.max(1, rec.end), W = 640, H = 124, L = 8, R = 8, x = t => L + (W - L - R) * t / end;
+  let on = false, since = 0, bars = "";
+  for (const e of ev) {
+    if (e.k === "comp" && !on) { on = true; since = e.t; }
+    if ((e.k === "stop" || e.k === "analyse" || e.k === "vie" || e.k === "fin") && on) { on = false; bars += `<rect x="${x(since)}" y="40" width="${Math.max(1, x(e.t) - x(since))}" height="26" class="eq-on"/>`; }
+  }
+  if (on) bars += `<rect x="${x(since)}" y="40" width="${x(end) - x(since)}" height="26" class="eq-on"/>`;
+  const lastX = { up: [-99, -99], dn: [-99, -99] };
+  const mk = ev.filter(e => ["dae", "analyse", "choc", "nochoc", "relais", "o2", "alerte"].includes(e.k)).map(e => {
+    const X = x(e.t), up = ["dae", "analyse", "choc", "nochoc"].includes(e.k), side = up ? "up" : "dn";
+    if (e.k === "choc") return `<g class="eq-mk choc"><line x1="${X}" x2="${X}" y1="34" y2="70"/><path d="M${X} 34 l6 -11 h-12 z"/></g>`;
+    let row = lastX[side].findIndex(v => X - v > 46); if (row < 0) row = lastX[side][0] < lastX[side][1] ? 0 : 1; lastX[side][row] = X;
+    const ty = up ? (row ? 12 : 26) : (row ? 104 : 90);
+    return `<g class="eq-mk ${e.k}"><line x1="${X}" x2="${X}" y1="${up ? ty + 4 : 40}" y2="${up ? 66 : ty - 10}"/><text x="${X}" y="${ty}" text-anchor="middle">${esc(EQ_EV[e.k].short)}</text></g>`;
+  }).join("");
+  let ticks = ""; const step = end > 600 ? 120 : end > 240 ? 60 : 30;
+  for (let t = 0; t <= end; t += step) ticks += `<text x="${x(t)}" y="${H - 2}" text-anchor="middle" class="eq-ax">${eqFmt(t)}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H + 8}" class="eq-svg" role="img" aria-label="Chronologie de l’intervention : compressions et événements"><rect x="${L}" y="40" width="${W - L - R}" height="26" class="eq-off"/>${bars}${mk}${ticks}</svg>`;
+}
+function eqDebrief(rec){
+  const m = eqAnalyse(rec), s = m.s, d = new Date(rec.date);
+  const team = { "2": "2 secouristes sans DAE au départ", "2dae": "2 secouristes avec DAE", "3": "3 secouristes ou plus" }[rec.team];
+  const tile = (v, l, cls) => `<div class="eq-tile ${cls || ""}"><b class="mono">${v}</b><span>${l}</span></div>`;
+  return `<section class="panel">
+      <div class="actions" style="justify-content:space-between"><div><div class="eyebrow">Débriefing</div><h2>${esc(rec.label || "Exercice")} · ${d.toLocaleDateString("fr-FR")} ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</h2><div class="small muted">${team} · durée ${eqDur(rec.end)}</div></div>
+        <div class="actions"><button class="btn" data-act="eq-print">Imprimer</button><button class="btn primary" data-act="eq-new">Nouvel exercice</button></div></div>
+      <div class="eq-tiles">
+        ${tile(s.ccf == null ? "—" : Math.round(s.ccf * 100) + " %", "fraction de compressions", s.ccf == null ? "" : s.ccf >= 0.8 ? "hi" : s.ccf >= 0.6 ? "mid" : "lo")}
+        ${tile(m.first.comp == null ? "—" : eqDur(m.first.comp), "avant la 1re compression", m.first.comp != null && m.first.comp <= 15 ? "hi" : "mid")}
+        ${tile(m.first.dae == null ? "—" : eqFmt(m.first.dae), "DAE en place")}
+        ${tile(m.first.choc == null ? "—" : eqFmt(m.first.choc), "1er choc")}
+        ${tile(String(m.chocs.length), "choc" + (m.chocs.length > 1 ? "s" : ""))}
+        ${tile(String(m.longPauses.length), "pause" + (m.longPauses.length > 1 ? "s" : "") + " de plus de 10 s", m.longPauses.length ? "lo" : "hi")}
+        ${tile(String(m.relais.length), "relais")}
+      </div>
+      ${eqTimeline(rec)}
+      <div class="eq-leg small"><span><i class="on"></i>Compressions</span><span><i class="off"></i>Sans compressions</span><span><i class="sh"></i>Choc</span></div>
+      <div class="eq-cols">
+        <div><h3>Points forts</h3><ul class="fra-list">${m.good.map(x => `<li>${esc(x)}</li>`).join("") || "<li>—</li>"}</ul></div>
+        <div><h3>À travailler</h3><ul class="fra-list">${m.todo.map(x => `<li>${esc(x)}</li>`).join("") || "<li>Rien à signaler.</li>"}</ul></div>
+      </div>
+      <details class="small"><summary><b>Tous les événements</b></summary><ol class="ch-log" style="margin-top:6px">${rec.ev.map(e => `<li><span class="mono">${eqFmt(e.t)}</span> ${esc(EQ_EV[e.k].l)}</li>`).join("")}</ol></details>
+    </section>`;
+}
+function eqClick(a, b){
+  if (a === "eq-team") { EQ.team = b.dataset.v; render(); return; }
+  if (a === "eq-start") { const i = document.getElementById("eq-label"); EQ.label = i ? i.value.trim() : ""; eqStart(); return; }
+  if (a === "eq-ev") { eqAdd(b.dataset.v); return; }
+  if (a === "eq-undo") { if (EQ.ev.length > 1) EQ.ev.pop(); eqTick(); eqLog(); return; }
+  if (a === "eq-end") { eqFinish(); return; }
+  if (a === "eq-abort" && !b.dataset.sure) { b.dataset.sure = "1"; b.textContent = "Confirmer l’abandon"; b.classList.add("danger"); setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = "Abandonner"; b.classList.remove("danger"); } }, 4000); return; }
+  if (a === "eq-abort") { EQ.running = false; clearInterval(EQ.timer); EQ.view = "live"; EQ.ev = []; render(); return; }
+  if (a === "eq-new") { EQ.view = "live"; EQ.open = null; render(); scrollTo(0, 0); return; }
+  if (a === "eq-open") { EQ.open = b.dataset.v; EQ.view = "debrief"; render(); scrollTo(0, 0); return; }
+  if (a === "eq-del") { EQ.hist = EQ.hist.filter(h => h.id !== b.dataset.v); try { localStorage.setItem("rcp-equipe", JSON.stringify(EQ.hist)); } catch (e) {} if (EQ.open === b.dataset.v) { EQ.open = null; EQ.view = "live"; } render(); return; }
+  if (a === "eq-print") { window.print(); return; }
+}
+function renderEquipe(){
+  const head = `<header class="top"><div class="grow"><div class="eyebrow">Exercice en équipe</div><h1>Chronologie de l’ACR</h1></div></header>`;
+  const hist = EQ.hist.length ? `<section class="panel eq-hist"><h2>Exercices enregistrés</h2><div class="eq-hl">${EQ.hist.map(h => { const s = eqState(h.ev, h.end), d = new Date(h.date); return `<div class="eq-hrow"><button class="linklike" data-act="eq-open" data-v="${h.id}">${esc(h.label || "Exercice")} · ${d.toLocaleDateString("fr-FR")} ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</button><span class="small muted mono">${eqDur(h.end)} · ${s.ccf == null ? "—" : Math.round(s.ccf * 100) + " %"}</span><button class="btn ghost" data-act="eq-del" data-v="${h.id}" aria-label="Supprimer">Supprimer</button></div>`; }).join("")}</div><p class="small muted" style="margin:0">Enregistrés sur cet appareil uniquement.</p></section>` : "";
+  if (EQ.view === "debrief") { const rec = EQ.hist.find(h => h.id === EQ.open); if (rec) return `<div class="wrap">${head}${eqDebrief(rec)}${hist}</div>`; }
+  if (!EQ.running) {
+    const seg = `<div class="seg" role="group">${[["2", "2 sans DAE"], ["2dae", "2 avec DAE"], ["3", "3 ou plus"]].map(([v, l]) => `<button data-act="eq-team" data-v="${v}" aria-pressed="${EQ.team === v}">${l}</button>`).join("")}</div>`;
+    const org = { "2": "Un secouriste poursuit le massage, le second va chercher un DAE et demande un renfort médical.", "2dae": "Un secouriste poursuit le massage, le second met en œuvre le DAE puis demande un renfort médical immédiatement après la première analyse.", "3": "Les trois actions (alerte, RCP et DAE) sont réalisées simultanément." }[EQ.team];
+    return `<div class="wrap">${head}
+      <section class="panel">
+        <p style="margin:0">Pendant l’exercice, un observateur signale chaque action d’un appui. À la fin, l’appli calcule le temps passé sans compressions, les délais, les relais, et propose un débriefing.</p>
+        <div class="choice"><span class="small muted">Équipe</span>${seg}</div>
+        <p class="small" style="margin:0"><b>Organisation prévue (05-PR-05) :</b> ${org}</p>
+        <label class="f">Nom de l’exercice ou de l’équipe (facultatif)<input id="eq-label" class="eq-input" maxlength="60" value="${esc(EQ.label)}" placeholder="ex. Équipe VSAV 1, cas n° 3"></label>
+        <button class="btn primary eq-go" data-act="eq-start">Démarrer : arrivée auprès de la victime</button>
+      </section>${hist}</div>`;
+  }
+  setTimeout(() => { eqTick(); eqLog(); }, 0);
+  const B = (k, cls) => `<button class="eq-b ${cls || ""}" data-act="eq-ev" data-v="${k}">${esc(EQ_EV[k].short)}</button>`;
+  return `<div class="wrap">${head}
+    <div class="eq-live">
+      <section class="eq-main">
+        <div class="eq-top"><div><div class="small">Temps écoulé</div><div class="eq-time mono" id="eq-time">00:00</div></div>
+          <div class="eq-kpi"><div><span class="small">Fraction de compressions</span><b class="eq-big mono" id="eq-ccf">—</b></div><div><span class="small">Depuis le dernier relais</span><b class="eq-big mono" id="eq-relay">—</b></div><div><span class="small" id="eq-ana-l">Avant la prochaine analyse</span><b class="eq-big mono" id="eq-ana">—</b></div></div></div>
+        <button class="eq-comp" id="eq-comp" data-act="eq-ev" data-v="toggle"><b>Début des compressions</b><small>Toucher dès que les mains reprennent</small></button>
+        <div class="eq-pause" id="eq-pause" hidden></div>
+        <div class="eq-hint" id="eq-hint" hidden></div>
+      </section>
+      <section class="panel">
+        <div class="eq-grid">
+          ${B("relais", "c-relais")}${B("dae", "c-dae")}${B("analyse", "c-ana")}${B("choc", "c-choc")}${B("nochoc")}${B("alerte")}${B("o2")}${B("canule")}${B("asp")}
+        </div>
+        <div class="eq-grid2">${B("vie", "c-vie")}${B("fin", "c-fin")}</div>
+        <div class="actions"><button class="btn ghost" data-act="eq-undo">Annuler le dernier appui</button><button class="btn ghost" data-act="eq-abort">Abandonner</button></div>
+        <ol class="ch-log" id="eq-log"></ol>
+      </section>
+    </div>
+    <p class="small muted" style="margin:0">Appuyer sur « Analyse » arrête aussi le compteur de compressions. Après un choc ou un choc non recommandé, appuyer sur le gros bouton dès la reprise.</p>
+  </div>`;
+}
 
 render();
 
