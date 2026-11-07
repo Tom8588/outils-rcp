@@ -317,6 +317,48 @@ body.exo-on{background:#0b0c1f}
 .exo-rg b{font-size:1.4rem;font-weight:900}.exo-rg span{font-size:.78rem;color:#aab0e0}
 [hidden]{display:none!important}
 .exo-res{flex:1;justify-content:center}.exo-res .exo-rg b{font-size:clamp(1.4rem,7vw,2.4rem)}.exo-rh{font-size:clamp(1.1rem,5vw,1.5rem)}
+/* mode exercice aux couleurs de la charte SDIS 88 : bleu foncé, bleu clair, vert, rouge */
+body.exo-on{background:#2E2F8D}
+.exo{background:#2E2F8D}
+.exo-k{color:#cfe4f6}
+.exo-x{background:rgba(255,255,255,.16)}
+.exo-box{background:#23246f;border-color:transparent}
+.exo-box .exo-l{color:#cfe4f6}
+.exo-c{background:#fff;color:#2E2F8D}
+.exo-c .exo-l{color:#2E2F8D}
+.exo-c.insuf{background:#7FB8E5;border-color:#7FB8E5;color:#2E2F8D}
+@keyframes exoHit{0%{border-color:#E83828}100%{border-color:transparent}}
+.exo-box.bon{background:#59BB5C;border-color:#59BB5C;color:#fff}
+.exo-box.bon .exo-l,.exo-box.lent .exo-l,.exo-box.rapide .exo-l{color:#fff}
+.exo-box.lent,.exo-box.rapide{background:#E83828;border-color:#E83828;color:#fff}
+.exo-box.juste{background:#7FB8E5;border-color:#7FB8E5;color:#2E2F8D}
+.exo-box.juste .exo-l{color:#2E2F8D}
+.exo-bar{background:rgba(255,255,255,.25)}
+.exo-bar .z.lent,.exo-bar .z.rapide{background:transparent}
+.exo-bar .z.bon{background:#fff}
+.exo-box:not(.bon):not(.lent):not(.rapide):not(.juste) .exo-bar .z.bon{background:#59BB5C}
+.exo-box.juste .exo-bar{background:rgba(46,47,141,.25)}
+.exo-bar i{background:#2E2F8D;box-shadow:0 0 0 2px #fff}
+.exo-go{background:#59BB5C;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.15)}
+.exo-go.stop{background:#E83828;color:#fff}
+.exo-seg{background:#23246f;border-color:rgba(255,255,255,.25)}
+.exo-seg button[aria-pressed="true"]{background:#7FB8E5;color:#2E2F8D}
+.exo-opts .btn{border-color:rgba(255,255,255,.3);background:transparent}
+.exo-opts .btn[aria-pressed="true"]{border-color:#7FB8E5;background:rgba(127,184,229,.18)}
+.exo-flash{background:#E83828;color:#fff}
+.exo-perm{background:#E83828}
+.exo-res{background:#23246f}
+.exo-rg div{background:#fff;color:#2E2F8D}
+.exo-rg span{color:#45478f}
+/* chronologie en équipe : même bleu */
+.eq-main{background:#2E2F8D}
+.eq-kpi .small{color:#cfe4f6}
+.eq-big.hi{color:#9be59e} .eq-big.lo{color:#ffb0a6}
+.eq-comp{background:#23246f;box-shadow:inset 0 0 0 3px #7FB8E5}
+.eq-comp.on{background:#59BB5C;color:#fff}
+.eq-hint{background:#7FB8E5;color:#2E2F8D}
+.eq-pause.lo{background:#E83828}
+.exo-go.stop{background:#fff;color:#E83828;box-shadow:inset 0 0 0 4px #E83828}
 
 /* ajustements charte sur les outils */
 .dk[aria-pressed="true"]{background:var(--vert);color:#0d2a10}
